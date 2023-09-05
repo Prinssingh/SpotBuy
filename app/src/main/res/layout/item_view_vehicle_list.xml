@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:background="?selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/vehicleImage"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:adjustViewBounds="true" />
+
+        <TextView
+            android:id="@+id/brandName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/baloo_normal"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="Brand Name"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:fontFamily="@font/baloo_bold"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="R-500000"
+            app:ensureMinTouchTargetSize="false"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            app:chipBackgroundColor="@color/chip4" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:singleLine="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/yearModel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:fontFamily="@font/baloo_normal"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="2000"
+                android:textColor="@color/black"
+                android:textSize="8sp"
+                app:chipBackgroundColor="@color/chip5"
+                app:ensureMinTouchTargetSize="false"
+                tools:ignore="SmallSp,TouchTargetSizeCheck" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/fuelType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:fontFamily="@font/baloo_normal"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="CNG and Hybrid"
+                android:textColor="@color/black"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                app:chipBackgroundColor="@color/chip3"
+                app:ensureMinTouchTargetSize="false"
+                tools:ignore="TouchTargetSizeCheck" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="Message"
+            app:cornerRadius="8dp"
+            android:textStyle="bold"
+            app:icon="@drawable/message"
+            app:iconSize="22dp" />
+    </LinearLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/vehiclesImages"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/vehicle_image"
+            android:padding="4dp" />
+
+<!--        <com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator-->
+<!--            android:id="@+id/dotsIndicator"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignBottom="@+id/vehiclesImages"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            app:dotsColor="@android:color/holo_orange_light"-->
+<!--            app:dotsSize="8dp"-->
+<!--            app:dotsSpacing="2dp"-->
+<!--            app:selectedDotColor="@android:color/holo_orange_dark"-->
+<!--            app:stiffness="300" />-->
+
+        <TextView
+            android:id="@+id/brandName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vehiclesImages"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="Band Name"
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/brandName"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="-8dp"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="R-100000"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/yearModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/price"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="2010 model"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/yearModel"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="4dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip1"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip1"
+                android:fontFamily="@font/baloo_normal"
+                android:text="Owners"
+                android:textSize="8sp"
+                tools:ignore="SmallSp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip2"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip2"
+                android:fontFamily="@font/baloo_normal"
+                android:text="500000 KM"
+                android:textSize="8sp"
+                tools:ignore="SmallSp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip3"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip3"
+                android:fontFamily="@font/baloo_normal"
+                android:text="CNG and Hybrid"
+                android:textSize="8sp"
+                tools:ignore="SmallSp" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/chipGroup"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="Description"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/descriptionText"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="@font/baloo_normal"
+            android:lineSpacingExtra="-6dp"
+            android:text="Description body"
+            android:textColor="@color/black"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

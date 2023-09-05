@@ -1,0 +1,77 @@
+plugins {
+    id 'com.android.application'
+    id("com.google.gms.google-services")
+}
+
+android {
+    namespace 'com.s19mobility.spotbuy'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.s19mobility.spotbuy"
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    dexOptions
+            {
+                preDexLibraries false
+            }
+
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    //Bottom navigation//chip navigation
+    implementation 'com.github.ismaeldivita:chip-navigation-bar:1.4.0'
+
+
+    //http requests
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+
+    //Duplicate kotlin protection
+     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+
+    //Fire base
+
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-storage")
+    implementation 'com.firebaseui:firebase-ui-firestore:8.0.2'
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+
+
+//For Json
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    //For multi pal images
+    implementation 'com.github.chintan369:MultiImagePicker:1.0.11'
+}

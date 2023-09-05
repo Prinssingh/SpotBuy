@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">SpotBuy</string>
+
+    <string name="user_name">User Name</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="notifications">Notifications</string>
+    <string name="language">Language</string>
+    <string name="help_amp_support"><![CDATA[Help & Support]]></string>
+    <string name="logout">Logout</string>
+    <string name="your_ads">Your Ads</string>
+    <string name="share_app">Share App</string>
+    <string name="messages">Messages</string>
+    <string name="sell">Sell</string>
+    <string name="my_ads">My Ads</string>
+    <string name="topup">Topup</string>
+    <string name="buy_more_post_s">Buy more post\'s</string>
+    <string name="add_a_new_post">Add a new post</string>
+    <string name="make_new_post">Make new post</string>
+    <string name="upload_image">Upload Vehicle Image(s)</string>
+    <string name="category">Category</string>
+    <string name="vehicle_image">Vehicle Images</string>
+    <string name="vehicle_details">Vehicle Details</string>
+    <string name="vehicle_overview">Vehicle Overview</string>
+    <string name="description">Description</string>
+    <string name="related_ads">Related Ads</string>
+    <string name="english">English</string>
+    <string name="hindi">हिंदी</string>
+    <string name="eng_hindi">Hindi</string>
+    <string name="eng_bengali">Bengali</string>
+    <string name="bengali">বাংলা</string>
+    <string name="eng_tamil">Tamil</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="languages">Languages</string>
+    <string name="post">Post</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="message">Message</string>
+    <string name="call">Call</string>
+    <string name="follow">Follow</string>
+    <string name="user_profile">My Profile</string>
+    <string name="verify">Verify</string>
+    <string name="profile">Profile</string>
+
+
+</resources>

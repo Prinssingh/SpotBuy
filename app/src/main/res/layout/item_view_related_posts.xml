@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="8dp"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:padding="4dp"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/vehicleImage"
+            android:layout_width="160dp"
+            android:layout_height="200dp"
+            android:src="@drawable/logo"
+            tools:ignore="ContentDescription" />
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="R500000"
+            android:textSize="28sp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:fontFamily="@font/baloo_normal"/>
+
+        <TextView
+            android:id="@+id/brandName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Brand name"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginBottom="36dp"
+            android:fontFamily="@font/baloo_normal"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
