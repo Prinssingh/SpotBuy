@@ -16,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static final String DB_NAME = "system.db";
 
     // database version
-    static final int DB_VERSION = 1;
+    static final int DB_VERSION = 4;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -31,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(VehiclePostManager.CREATE_TABLE);
         sqLiteDatabase.execSQL(FuelTypeManager.CREATE_TABLE);
         sqLiteDatabase.execSQL(UserManager.CREATE_TABLE);
+        sqLiteDatabase.execSQL(ImageManager.CREATE_TABLE);
 
 
     }
@@ -44,6 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VehiclePostManager.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + FuelTypeManager.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + UserManager.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ImageManager.TABLE_NAME);
 
         onCreate(sqLiteDatabase);
     }

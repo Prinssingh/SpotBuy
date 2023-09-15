@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +36,7 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
 
     @Override
     protected void onBindViewHolder(@NonNull RelatedPostListAdapter.ViewHolderData holder, int position, @NonNull VehiclePost model) {
-        ((RelatedPostListAdapter.ViewHolderData) holder).bindData(model, position);
+        holder.bindData(model, position);
     }
 
     @NonNull
@@ -61,6 +62,7 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
         ImageView image;
         TextView brandName;
         TextView price;
+        ProgressBar imageProgressIndicator;
 
 
         public ViewHolderData(@NonNull View itemView, Context context) {
@@ -70,6 +72,7 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
             image = itemView.findViewById(R.id.vehicleImage);
             brandName = itemView.findViewById(R.id.brandName);
             price = itemView.findViewById(R.id.price);
+            imageProgressIndicator = itemView.findViewById(R.id.imageProgressIndicator);
 
 
         }
@@ -77,7 +80,7 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
         @SuppressLint("SetTextI18n")
         public void bindData(VehiclePost vehicle, int i) {
             //Binding here
-            new DownloadImage(image).execute(vehicle.getImageList().get(0));
+            new DownloadImage(image,imageProgressIndicator).execute(vehicle.getImageList().get(0));
             brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
 

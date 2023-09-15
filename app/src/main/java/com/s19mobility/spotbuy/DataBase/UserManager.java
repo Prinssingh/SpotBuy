@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 
 import com.s19mobility.spotbuy.Models.User;
 
@@ -106,8 +108,7 @@ public class UserManager {
         contentValues.put(NAME, user.getName());
         contentValues.put(PASSWORD, user.getPassword());
         contentValues.put(TOTAL_POST, user.getTotalPost());
-        contentValues.put(UID, user.getUid());
-
+        contentValues.put(UID, user.getId());
         contentValues.put(FOLLOWERS, user.jsonFolloersList());
         contentValues.put(FOLLOWING, user.jsonFollowingList());
 
@@ -119,7 +120,6 @@ public class UserManager {
     public void update(User user) {
 
         ContentValues contentValues = new ContentValues();
-
         contentValues.put(ID, user.getId());
         contentValues.put(ACTIVE, user.isActive());
         contentValues.put(ADDRESS, user.getAddress());
@@ -133,7 +133,7 @@ public class UserManager {
         contentValues.put(NAME, user.getName());
         contentValues.put(PASSWORD, user.getPassword());
         contentValues.put(TOTAL_POST, user.getTotalPost());
-        contentValues.put(UID, user.getUid());
+        contentValues.put(UID, user.getId());
 
         contentValues.put(FOLLOWERS, user.jsonFolloersList());
         contentValues.put(FOLLOWING, user.jsonFollowingList());
@@ -141,7 +141,20 @@ public class UserManager {
         dbw.update(TABLE_NAME, contentValues, ID + " = " + user.getId(), null);
 
     }
+    public void updateFollowing(User user) {
 
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FOLLOWING, user.jsonFollowingList());
+        dbw.update(TABLE_NAME, contentValues, ID + " = " + user.getId(), null);
+
+    }
+    public void updateFollowers(User user) {
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FOLLOWERS, user.jsonFolloersList());
+        dbw.update(TABLE_NAME, contentValues, ID + " = " + user.getId(), null);
+
+    }
     public void delete(User user) {
         dbw.delete(TABLE_NAME, ID + "=" + user.getId(), null);
 
@@ -172,7 +185,7 @@ public class UserManager {
                 user.setName(cursor.getString(cursor.getColumnIndex(NAME)));
                 user.setPassword(cursor.getString(cursor.getColumnIndex(PASSWORD)));
                 user.setTotalPost(cursor.getInt(cursor.getColumnIndex(TOTAL_POST)));
-                user.setUid(cursor.getString(cursor.getColumnIndex(UID)));
+                user.setId(cursor.getString(cursor.getColumnIndex(UID)));
                 user.FolloersLisFromJson(cursor.getString(cursor.getColumnIndex(FOLLOWERS)));
                 user.FollowingLisFromJson(cursor.getString(cursor.getColumnIndex(FOLLOWING)));
 
@@ -186,5 +199,48 @@ public class UserManager {
         return users;
     }
 
+    @SuppressLint("Range")
+    public User getUserById(String uid){
+        User user = new User();
+        String sqlQuery = " SELECT * FROM " + TABLE_NAME + " WHERE "+ID +" ='"+uid+"'"+";";
+        @SuppressLint("Recycle") Cursor cursor = dbr.rawQuery(sqlQuery, null);//
+        if (cursor != null && cursor.moveToFirst()) {
+            user.setId(cursor.getString(cursor.getColumnIndex(ID)));
+            user.setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE)) != 0);
+            user.setAddress(cursor.getString(cursor.getColumnIndex(ADDRESS)));
+            user.setAlt_mobile(cursor.getString(cursor.getColumnIndex(ALT_MOBILE)));
+            user.setAvailablePost(cursor.getInt(cursor.getColumnIndex(AVAILABLE_POST)));
+            user.setDateTimeString(cursor.getString(cursor.getColumnIndex(DATE_TIME)));
+            user.setEmail(cursor.getString(cursor.getColumnIndex(EMAIl)));
+            user.setGender(cursor.getString(cursor.getColumnIndex(GENDER)));
+            user.setImage(cursor.getString(cursor.getColumnIndex(IMAGE)));
+            user.setMobile(cursor.getString(cursor.getColumnIndex(MOBILE)));
+            user.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+            user.setPassword(cursor.getString(cursor.getColumnIndex(PASSWORD)));
+            user.setTotalPost(cursor.getInt(cursor.getColumnIndex(TOTAL_POST)));
+            user.setId(cursor.getString(cursor.getColumnIndex(UID)));
+            user.FolloersLisFromJson(cursor.getString(cursor.getColumnIndex(FOLLOWERS)));
+            user.FollowingLisFromJson(cursor.getString(cursor.getColumnIndex(FOLLOWING)));
+
+
+        }
+        return user;
+
+    }
+
+    public void clearTable(){
+        dbw.delete(TABLE_NAME,null, null);
+    }
+
+    public int getCount(){
+        int count=0;
+        count = (int) DatabaseUtils.queryNumEntries(dbr, TABLE_NAME);
+        return  count;
+
+        ///  String countQuery = "SELECT  * FROM " + TABLE_NAME;
+        //    SQLiteDatabase db = this.getReadableDatabase();
+        //    Cursor cursor = db.rawQuery(countQuery, null);
+        //    int count = cursor.getCount();
+    }
 
 }

@@ -2,6 +2,7 @@ package com.s19mobility.spotbuy.Fragments.main;
 
 import static com.s19mobility.spotbuy.Others.Constants.VehiclePostCollection;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,18 +10,19 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.s19mobility.spotbuy.Activity.UpdatePostActivity;
 import com.s19mobility.spotbuy.Adapters.FireBase.MyAdsAdapter;
+import com.s19mobility.spotbuy.Adapters.MyAdsListAdapter;
 import com.s19mobility.spotbuy.DataBase.SharedPrefs;
-import com.s19mobility.spotbuy.Models.VehicleCategory;
+import com.s19mobility.spotbuy.DataBase.VehiclePostManager;
 import com.s19mobility.spotbuy.Models.VehiclePost;
-import com.s19mobility.spotbuy.Others.WrapContentLinearLayoutManager;
+import com.s19mobility.spotbuy.Widgets.WrapContentLinearLayoutManager;
 import com.s19mobility.spotbuy.R;
 
 
@@ -34,6 +36,7 @@ public class AdsFragment extends Fragment {
     FirestoreRecyclerAdapter adapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPrefs sharedPrefs;
+    VehiclePostManager vehiclePostManager;
 
     public AdsFragment(boolean main) {
         this.main = main;
@@ -51,18 +54,34 @@ public class AdsFragment extends Fragment {
         // Inflate the layout for this fragment
         Root = inflater.inflate(R.layout.fragment_ads, container, false);
         sharedPrefs = new SharedPrefs(requireContext());
-
-        Query query = db.collection(VehiclePostCollection)
-                .whereEqualTo("sellerId", sharedPrefs.getSharedID()).orderBy("dateTime");
-        FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
-                .setQuery(query, VehiclePost.class)
-                .build();
-        adapter = new MyAdsAdapter(options, this, requireContext());
+        vehiclePostManager = new VehiclePostManager(requireContext());
 
         initView();
+        setAdapter();
 
         return Root;
     }
+
+    private  void setAdapter(){
+
+        if(vehiclePostManager.getCount()>1){
+            MyAdsListAdapter myAdsListAdapter = new MyAdsListAdapter(vehiclePostManager.listAll(),this,requireContext());
+            myAdList.setAdapter(myAdsListAdapter);
+
+        }
+        else{
+            Query query = db.collection(VehiclePostCollection)
+                    .whereEqualTo("sellerId", sharedPrefs.getSharedUID()).orderBy("dateTime");
+            FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
+                    .setQuery(query, VehiclePost.class)
+                    .build();
+            adapter = new MyAdsAdapter(options, this, requireContext());
+            myAdList.setAdapter(adapter);
+            adapter.startListening();
+        }
+
+    }
+
 
     private void initView() {
         header_title = Root.findViewById(R.id.header_title);
@@ -73,24 +92,52 @@ public class AdsFragment extends Fragment {
 
         myAdList = Root.findViewById(R.id.myAdList);
         myAdList.setLayoutManager(new WrapContentLinearLayoutManager(requireContext()));
-        myAdList.setAdapter(adapter);
+
     }
 
 
-    public void OnItemClickListener(VehiclePost ad) {
+    public void OnItemClickListener(VehiclePost vehicle) {
+        Intent intent = new Intent(requireActivity(), UpdatePostActivity.class);
+        intent.putExtra("vehicle",vehicle);
+        startActivity(intent);
 
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
+        try {
+            adapter.startListening();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public void onStop() {
         super.onStop();
-        adapter.stopListening();
+        try {
+            adapter.stopListening();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+    public void showEmptyIndicator() {
+
+        try {
+            emptyIndicator.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void hideEmptyIndicator() {
+        try {
+            emptyIndicator.setVisibility(View.GONE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }

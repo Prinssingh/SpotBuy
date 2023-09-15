@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.main.MessagesFragment">
+    tools:context=".Fragments.main.ChatsFragment">
 
     <LinearLayout
         android:id="@+id/header_title"
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="@font/baloo_normal"
-            android:text="@string/messages"
+            android:text="@string/chats"
             android:textColor="@color/white"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -35,14 +35,40 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/messages"
+        android:id="@+id/chats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/header_title"
-
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:scrollbars="none" />
+
+
+    <LinearLayout
+        android:id="@+id/emptyIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_8"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+       >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="No Chats yet"
+            android:textColor="@color/theme_primary"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
 
 
 </RelativeLayout>

@@ -33,6 +33,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651803800263:android:269e415edf386cd5b204e2",
+        "android_client_info": {
+          "package_name": "com.spotmobility.spotbuy.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651803800263-8o5sll06evs9h48avsetqnvk6r2b4mcf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWNbNS3GLpZrKOrWOEr5MI2fkqYep6zKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "651803800263-8o5sll06evs9h48avsetqnvk6r2b4mcf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

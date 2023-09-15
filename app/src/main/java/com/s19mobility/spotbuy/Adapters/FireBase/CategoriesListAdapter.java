@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +27,7 @@ public class CategoriesListAdapter extends FirestoreRecyclerAdapter<VehicleCateg
     private final Context mContext;
     private final HomeFragment homeFragment;
 
-    public CategoriesListAdapter(@NonNull FirestoreRecyclerOptions options, Context mContext, HomeFragment homeFragment) {
+    public CategoriesListAdapter(@NonNull FirestoreRecyclerOptions<VehicleCategory> options, Context mContext, HomeFragment homeFragment) {
         super(options);
         this.mContext = mContext;
         this.homeFragment = homeFragment;
@@ -35,7 +36,7 @@ public class CategoriesListAdapter extends FirestoreRecyclerAdapter<VehicleCateg
     @Override
     protected void onBindViewHolder(@NonNull ViewHolderData holder, int position, @NonNull VehicleCategory model) {
 
-        ((ViewHolderData) holder).bindData(model, position);
+        holder.bindData(model, position);
     }
 
     @NonNull
@@ -50,8 +51,8 @@ public class CategoriesListAdapter extends FirestoreRecyclerAdapter<VehicleCateg
     }
 
     @Override
-    public void onError(FirebaseFirestoreException e) {
-        Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+    public void onError(@NonNull FirebaseFirestoreException e) {
+        Toast.makeText(mContext, "Error Firebase Cat", Toast.LENGTH_SHORT).show();
         Log.e("HERE", "onError: ", e);
     }
 
@@ -59,27 +60,23 @@ public class CategoriesListAdapter extends FirestoreRecyclerAdapter<VehicleCateg
         final ImageView image;
         final TextView title;
         Context context;
+        ProgressBar imageProgressIndicator;
 
         public ViewHolderData(@NonNull View itemView, Context context) {
             super(itemView);
             this.context = context;
             image = itemView.findViewById(R.id.image);
             title = itemView.findViewById(R.id.title);
+            imageProgressIndicator = itemView.findViewById(R.id.imageProgressIndicator);
 
 
         }
 
         @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
         public void bindData(VehicleCategory category, int i) {
-            new DownloadImage(image).execute(category.getImage());
+            new DownloadImage(image,imageProgressIndicator).execute(category.getImage());
             title.setText(category.getName());
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    CategoriesListAdapter.this.homeFragment.onCategoryClickListener(category);
-                }
-            });
+            itemView.setOnClickListener(view -> CategoriesListAdapter.this.homeFragment.onCategoryClickListener(category));
 
 
         }

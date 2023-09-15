@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -103,6 +104,18 @@ public class VehicleBrandModelManager {
         dbw.delete(TABLE_NAME, null,null);
 
     }
+
+
+    public int getCount(){
+        int count=0;
+        count = (int) DatabaseUtils.queryNumEntries(dbr, TABLE_NAME);
+        return  count;
+
+        ///  String countQuery = "SELECT  * FROM " + TABLE_NAME;
+        //    SQLiteDatabase db = this.getReadableDatabase();
+        //    Cursor cursor = db.rawQuery(countQuery, null);
+        //    int count = cursor.getCount();
+    }
     @SuppressLint("Range")
     public ArrayList<VehicleBrandModel> listAllbyBrandId(String brandId) {
         ArrayList<VehicleBrandModel> categoryList = new ArrayList<>();
@@ -130,7 +143,6 @@ public class VehicleBrandModelManager {
     }
 
 
-
     @SuppressLint("Range")
     public List<String> getBrandModelByBrandId(String brandId) {
         List<String> temp = new ArrayList() {
@@ -138,7 +150,7 @@ public class VehicleBrandModelManager {
 
         String sqlQuery = " SELECT " + NAME + " FROM " + TABLE_NAME + " WHERE " + BRAND_ID + "='" + brandId + "' AND " + ACTIVE + "='1';";
         @SuppressLint("Recycle")
-        Cursor cursor = dbr.query(TABLE_NAME, new String[]{NAME}, BRAND_ID + "=? AND " + ACTIVE + "='1'", new String[]{brandId}, null, null, null, null);//        @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_NAME,, null, null, null, null, null);
+        Cursor cursor = dbr.query(TABLE_NAME, new String[]{NAME}, BRAND_ID + "=? ", new String[]{brandId}, null, null, null, null);//        @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_NAME,, null, null, null, null, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String name = cursor.getString(cursor.getColumnIndex(NAME));
@@ -146,6 +158,25 @@ public class VehicleBrandModelManager {
             }
         }
         return temp;
+    }
+
+   @SuppressLint("Range")
+    public VehicleBrandModel getBrandModelById(String brandModelId) {
+       VehicleBrandModel vehicleBrandModel= new VehicleBrandModel();
+
+        String sqlQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + "='" + brandModelId +"';";
+        @SuppressLint("Recycle")
+        Cursor cursor = dbr.rawQuery(sqlQuery,null);
+        if (cursor != null && cursor.moveToFirst()) {
+            vehicleBrandModel.setId(cursor.getString(cursor.getColumnIndex(ID)));
+            vehicleBrandModel.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+            vehicleBrandModel.setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE))!=0);
+            vehicleBrandModel.setCategoryId(cursor.getString(cursor.getColumnIndex(CATEGORY_ID)));
+            vehicleBrandModel.setBrandId(cursor.getString(cursor.getColumnIndex(BRAND_ID)));
+
+        }
+        return vehicleBrandModel;
+
     }
 
 }

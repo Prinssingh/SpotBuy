@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -97,7 +98,7 @@ public class VehicleBrandManager {
     }
 
     public void clearTable(){
-        String sqlQuery = " DELETE * FROM " + TABLE_NAME + ";";
+//        String sqlQuery = " DELETE * FROM " + TABLE_NAME + ";";
         dbw.delete(TABLE_NAME, null,null);
 
     }
@@ -150,34 +151,33 @@ public class VehicleBrandManager {
         return temp;
     }
 
-    @SuppressLint("Range")
-    public List<String> texxtBrand() {
-        List<String> temp = new ArrayList() {
-        };
+   @SuppressLint("Range")
+   public VehicleBrand getBrandById(String id){
+        VehicleBrand brand= new VehicleBrand();
+       String sqlQuery = " SELECT * FROM " + TABLE_NAME + " WHERE " + ID + "='" + id + "';";
+       @SuppressLint("Recycle")
+       Cursor cursor = dbr.rawQuery(sqlQuery, null);//        @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_NAME,, null, null, null, null, null);
 
-        String sqlQuery = "SELECT * FROM " + TABLE_NAME +";";
-        Log.d("TAG", "getBrandByCategoryId: "+sqlQuery);
+       if (cursor != null &&  cursor.moveToFirst()) {
+               brand.setId(cursor.getString(cursor.getColumnIndex(ID)));
+               brand.setName(cursor.getString(cursor.getColumnIndex(NAME)));
+               brand.setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE))!=0);
+               brand.setCategoryId(cursor.getString(cursor.getColumnIndex(CATEGORY_ID)));
 
-        @SuppressLint("Recycle")
-        Cursor cursor = dbr.rawQuery(sqlQuery,null);
+       }
 
+        return brand;
+   }
 
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                String name = cursor.getString(cursor.getColumnIndex(NAME));
-                Log.d("TAG", "getBrandByCategoryId: "+name);
-                Log.d("TAG", "getBrandByCategoryId: Cat ID"+cursor.getString(cursor.getColumnIndex(CATEGORY_ID)));
-                temp.add(name);
+    public int getCount(){
+        int count=0;
+        count = (int) DatabaseUtils.queryNumEntries(dbr, TABLE_NAME);
+        return  count;
 
-            }
-
-        }
-
-
-        return temp;
+        ///  String countQuery = "SELECT  * FROM " + TABLE_NAME;
+        //    SQLiteDatabase db = this.getReadableDatabase();
+        //    Cursor cursor = db.rawQuery(countQuery, null);
+        //    int count = cursor.getCount();
     }
-
-
-
 
 }

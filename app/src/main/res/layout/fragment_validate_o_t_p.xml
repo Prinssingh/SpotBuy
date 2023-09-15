@@ -8,6 +8,7 @@
     tools:ignore="UseCompoundDrawables">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -41,6 +42,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:autofillHints="otp"
             android:background="@drawable/custom_input_design"
             android:drawableStart="@drawable/icon_lock"
             android:drawablePadding="12dp"
@@ -51,8 +53,7 @@
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:textSize="14sp"
-            tools:ignore="HardcodedText"
-            android:autofillHints="otp" />
+            tools:ignore="HardcodedText" />
 
 
         <Button
@@ -64,6 +65,19 @@
             android:text="@string/verify"
             app:cornerRadius="12dp" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/resendOTP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="38dp"
+        android:layout_marginTop="-24dp"
+        android:text="Resend OTP in 0:57"
+        android:textColor="@color/theme_primary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <ImageView
         android:layout_width="wrap_content"

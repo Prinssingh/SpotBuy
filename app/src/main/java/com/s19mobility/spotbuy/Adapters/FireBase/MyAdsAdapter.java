@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,16 +29,21 @@ public class MyAdsAdapter extends FirestoreRecyclerAdapter<VehiclePost, MyAdsAda
     private final Context mContext;
 
 
-    public MyAdsAdapter(@NonNull FirestoreRecyclerOptions options, AdsFragment adsFragment, Context mContext) {
+    public MyAdsAdapter(@NonNull FirestoreRecyclerOptions<VehiclePost> options, AdsFragment adsFragment, Context mContext) {
         super(options);
         this.adsFragment = adsFragment;
         this.mContext = mContext;
+        if (getItemCount()<1)
+            adsFragment.showEmptyIndicator();
+        else
+            adsFragment.hideEmptyIndicator();
+
     }
 
     @Override
     protected void onBindViewHolder(@NonNull MyAdsAdapter.ViewHolderData holder, int position, @NonNull VehiclePost model) {
 
-        ((MyAdsAdapter.ViewHolderData) holder).bindData(model, position);
+        holder.bindData(model, position);
     }
 
     @NonNull
@@ -48,11 +54,14 @@ public class MyAdsAdapter extends FirestoreRecyclerAdapter<VehiclePost, MyAdsAda
 
     @Override
     public void onDataChanged() {
-
+        if (getItemCount()<1)
+            adsFragment.showEmptyIndicator();
+        else
+            adsFragment.hideEmptyIndicator();
     }
 
     @Override
-    public void onError(FirebaseFirestoreException e) {
+    public void onError(@NonNull FirebaseFirestoreException e) {
         Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
         Log.e("HERE", "onError: ", e);
     }
@@ -62,6 +71,7 @@ public class MyAdsAdapter extends FirestoreRecyclerAdapter<VehiclePost, MyAdsAda
         ViewPager viewPager;
         //SpringDotsIndicator dotsIndicator;
         ScrollingImageAdapter imageAdapter;
+        ImageView statusIndicator;
 
         TextView brandName,price,yearModel,description;
         Chip chip1,chip2,chip3;
@@ -84,6 +94,7 @@ public class MyAdsAdapter extends FirestoreRecyclerAdapter<VehiclePost, MyAdsAda
             chip3= itemView.findViewById(R.id.chip3);
 
             description= itemView.findViewById(R.id.description);
+            statusIndicator= itemView.findViewById(R.id.statusIndicator);
 
         }
 
@@ -101,13 +112,25 @@ public class MyAdsAdapter extends FirestoreRecyclerAdapter<VehiclePost, MyAdsAda
             chip2.setText(""+vehicle.getFuelType());
             description.setText(""+vehicle.getDescription());
 
+            switch (vehicle.getStatus()) {
+                case "PENDING":
+                    statusIndicator.setImageResource(R.drawable.ic_pending);
+                    break;
+                case "APPROVED":
+                    statusIndicator.setImageResource(R.drawable.ic_approved);
+                    break;
+                case "REJECTED":
+                    statusIndicator.setImageResource(R.drawable.ic_rejected);
+                    break;
+                case "DELETED":
+                    statusIndicator.setImageResource(R.drawable.ic_deleted);
+                    break;
+                case "EXPIRED":
+                    statusIndicator.setImageResource(R.drawable.ic_expired);
+                    break;
+            }
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MyAdsAdapter.this.adsFragment.OnItemClickListener(vehicle);
-                }
-            });
+            itemView.setOnClickListener(view -> MyAdsAdapter.this.adsFragment.OnItemClickListener(vehicle));
         }
 
     }

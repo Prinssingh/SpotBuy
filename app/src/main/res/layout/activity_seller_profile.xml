@@ -25,7 +25,8 @@
                 android:layout_height="36dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/ic_back" />
+                android:src="@drawable/ic_back"
+                android:contentDescription="@string/back_button" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -33,7 +34,7 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/baloo_normal"
-                android:text="Seller Profile"
+                android:text="@string/seller_profile"
                 android:textColor="@color/black"
                 android:textSize="28sp"
                 android:textStyle="bold" />
@@ -50,16 +51,28 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/sellerImage"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:background="@color/gray_1"
-                    android:src="@drawable/user_default"
-                    app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+               <RelativeLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content">
+                   <com.google.android.material.imageview.ShapeableImageView
+                       android:id="@+id/sellerImage"
+                       android:layout_width="120dp"
+                       android:layout_height="120dp"
+                       android:layout_centerHorizontal="true"
+                       android:layout_gravity="center"
+                       android:layout_marginTop="16dp"
+                       android:background="@color/gray_1"
+                       android:src="@drawable/user_default"
+                       app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+                   <ProgressBar
+                       android:id="@+id/imageProgressIndicator"
+                       style="?android:attr/progressBarStyle"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:visibility="gone"
+                       android:indeterminateTint="@color/theme_primary"
+                       android:layout_centerInParent="true" />
+               </RelativeLayout>
 
                 <TextView
                     android:id="@+id/username"
@@ -71,6 +84,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/baloo_normal"
                     android:gravity="center"
+                    android:singleLine="true"
                     android:text="Seller Name"
                     android:textColor="@color/black"
                     android:textSize="28sp"
@@ -190,6 +204,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    android:visibility="gone"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="8dp">
 

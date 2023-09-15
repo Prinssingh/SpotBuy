@@ -2,37 +2,38 @@ package com.s19mobility.spotbuy.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.ismaeldivita.chipnavigation.ChipNavigationBar;
+import com.s19mobility.spotbuy.DataBase.SharedPrefs;
 import com.s19mobility.spotbuy.Fragments.main.AdsFragment;
 import com.s19mobility.spotbuy.Fragments.main.HomeFragment;
-import com.s19mobility.spotbuy.Fragments.main.MessagesFragment;
+import com.s19mobility.spotbuy.Fragments.main.ChatsFragment;
 import com.s19mobility.spotbuy.Fragments.main.SellFragment;
 import com.s19mobility.spotbuy.MainActivity;
 import com.s19mobility.spotbuy.Others.GPSTracker;
+import com.s19mobility.spotbuy.Others.PermissionChecker;
 import com.s19mobility.spotbuy.R;
 
 public class HomeActivity extends MainActivity {
     ChipNavigationBar chipNavigationBar;
     GPSTracker gpsTracker;
+    SharedPrefs sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        sharedPrefs = new SharedPrefs(this);
 
         chipNavigationBar = findViewById(R.id.bottom_nav_bar);
         chipNavigationBar.setItemSelected(R.id.bottom_nav_home,
@@ -42,6 +43,8 @@ public class HomeActivity extends MainActivity {
                         HomeFragment.newInstance()).commit();
         bottomMenu();
 
+        new PermissionChecker(this,this);
+        //For Location Only
         checkRunTimePermission();
     }
 
@@ -57,7 +60,7 @@ public class HomeActivity extends MainActivity {
                                 fragment = HomeFragment.newInstance();
                                 break;
                             case R.id.bottom_nav_messages:
-                                fragment = MessagesFragment.newInstance();
+                                fragment = ChatsFragment.newInstance();
                                 break;
                             case R.id.bottom_nav_ads:
                                 fragment = AdsFragment.newInstance(true);
@@ -79,18 +82,14 @@ public class HomeActivity extends MainActivity {
     }
 
     public void checkRunTimePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                gpsTracker = new GPSTracker(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            gpsTracker = new GPSTracker(this);
 
-            } else {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                        10);
-            }
         } else {
-            gpsTracker = new GPSTracker(this); //GPSTracker is class that is used for retrieve user current location
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    10);
         }
     }
 
@@ -100,7 +99,9 @@ public class HomeActivity extends MainActivity {
         if (requestCode == 10) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 gpsTracker = new GPSTracker(this);
-            } else {
+            }
+
+            else {
 //                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 //                    // If User Checked 'Don't Show Again' checkbox for runtime permission, then navigate user to Settings
 //                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -124,5 +125,61 @@ public class HomeActivity extends MainActivity {
         }
     }
 
+    public void logoutFromApp() {
+        sharedPrefs.clearSharedData();
+        FirebaseAuth.getInstance().signOut();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
 
+    public void logoutConfirmationDialog() {
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to logout ?")
+                .setCancelable(false)
+                .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+
+                    }
+                })
+                .setNegativeButton("Logout", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        logoutFromApp();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setTitle("Exit From SpotBuy");
+                    dialog.setCancelable(false);
+                    dialog.setMessage("Do you want to exit from spot buy app??");
+                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                          finish();
+                        }
+                    })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                    AlertDialog alertDialog = dialog.create();
+                    alertDialog.show();
+    }
 }

@@ -13,32 +13,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/userImage"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:background="@color/gray_1"
-            android:src="@drawable/user_default"
-            app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:id="@+id/userImageSection"
+          android:layout_height="wrap_content">
+          <com.google.android.material.imageview.ShapeableImageView
+              android:id="@+id/userImage"
+              android:layout_width="150dp"
+              android:layout_height="150dp"
+              android:layout_centerHorizontal="true"
+              android:layout_marginTop="16dp"
+              android:background="@color/gray_1"
+              android:src="@drawable/user_default"
+              app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
 
-        <ImageButton
-            android:id="@+id/editUserImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/userImage"
-            android:layout_alignEnd="@+id/userImage"
-            android:layout_marginTop="120dp"
-            android:layout_marginEnd="2dp"
-            android:background="@drawable/edit_bg"
-            android:src="@drawable/ic_edit"
-            app:tint="@color/white" />
+          <ImageButton
+              android:id="@+id/editUserImage"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignTop="@+id/userImage"
+              android:layout_alignEnd="@+id/userImage"
+              android:layout_marginTop="120dp"
+              android:layout_marginEnd="2dp"
+              android:background="@drawable/edit_bg"
+              android:src="@drawable/ic_edit"
+              app:tint="@color/white" />
+
+          <ProgressBar
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:indeterminateTint="@color/theme_primary"
+              android:id="@+id/imageProgressIndicator"
+              android:visibility="gone"
+              android:layout_centerInParent="true"/>
+      </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/userImage"
+            android:layout_below="@id/userImageSection"
             android:layout_centerHorizontal="true"
             android:orientation="vertical"
             android:padding="16dp">
@@ -150,6 +163,7 @@
 
             <LinearLayout
                 android:id="@+id/linearBG"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -167,11 +181,39 @@
                     android:src="@drawable/icon_gender" />
 
                 <Spinner
-                    android:id="@+id/gender"
+                    android:id="@+id/genderT"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:entries="@array/gender" />
             </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/menu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:boxBackgroundColor="#fafafa"
+                app:startIconDrawable="@drawable/icon_gender"
+                app:boxCornerRadiusTopEnd="12dp"
+                android:dropDownSelector="@android:color/white"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="1dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:singleLine="true"
+                android:entries="@array/gender"
+                tools:ignore="LabelFor" />
+            </com.google.android.material.textfield.TextInputLayout>
 
 
             <Button

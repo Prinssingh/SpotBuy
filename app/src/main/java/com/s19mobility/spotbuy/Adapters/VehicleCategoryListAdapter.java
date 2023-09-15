@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.s19mobility.spotbuy.DataBase.ImageManager;
 import com.s19mobility.spotbuy.Fragments.main.HomeFragment;
 import com.s19mobility.spotbuy.Models.VehicleCategory;
 import com.s19mobility.spotbuy.R;
@@ -21,6 +22,7 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
     private final List<VehicleCategory> vehicleCategoryList;
     private final HomeFragment homeFragment;
     private final Context mContext;
+    private final ImageManager imageManager;
 
 
 
@@ -28,6 +30,7 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
         this.vehicleCategoryList = vehicleModelList;
         this.homeFragment = homeFragment;
         this.mContext = mContext;
+        imageManager= new ImageManager(mContext);
     }
 
     @NonNull
@@ -69,9 +72,7 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
 
         @SuppressLint("SetTextI18n")
         public void bindData(VehicleCategory vehicleCategory, int i) {
-            //Binding here
-
-           // image.setImageResource(vehicleCategory.getImageId());
+            image.setImageBitmap(imageManager.getImageByLink(vehicleCategory.getImage()).getImageBitmap() );
             title.setText(vehicleCategory.getName());
 
 

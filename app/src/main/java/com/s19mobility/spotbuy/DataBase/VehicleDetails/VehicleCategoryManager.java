@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -101,6 +102,17 @@ public class VehicleCategoryManager {
         String sqlQuery = " DELETE * FROM " + TABLE_NAME + ";";
         dbw.delete(TABLE_NAME, null,null);
 
+    }
+
+    public int getCount(){
+        int count=0;
+        count = (int) DatabaseUtils.queryNumEntries(dbr, TABLE_NAME);
+        return  count;
+
+        ///  String countQuery = "SELECT  * FROM " + TABLE_NAME;
+        //    SQLiteDatabase db = this.getReadableDatabase();
+        //    Cursor cursor = db.rawQuery(countQuery, null);
+        //    int count = cursor.getCount();
     }
 
     @SuppressLint("Range")

@@ -1,6 +1,7 @@
 package com.s19mobility.spotbuy.Fragments.main;
 
 import static com.s19mobility.spotbuy.Others.Constants.VehiclePostCollection;
+import static com.s19mobility.spotbuy.Others.Constants.byteToBitmap;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -12,14 +13,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,28 +30,36 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.api.LogDescriptor;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.s19mobility.spotbuy.Activity.ChatActivity;
 import com.s19mobility.spotbuy.Activity.HelpAndSupportActivity;
+import com.s19mobility.spotbuy.Activity.HomeActivity;
 import com.s19mobility.spotbuy.Activity.LanguageActivity;
 import com.s19mobility.spotbuy.Activity.MyAdActivity;
 import com.s19mobility.spotbuy.Activity.NotificationsActivity;
 import com.s19mobility.spotbuy.Activity.ProfileActivity;
+import com.s19mobility.spotbuy.Activity.SearchActivity;
 import com.s19mobility.spotbuy.Activity.VehicleDetailsActivity;
 import com.s19mobility.spotbuy.Adapters.FireBase.CategoriesListAdapter;
 import com.s19mobility.spotbuy.Adapters.FireBase.VehicleListAdapter;
 import com.s19mobility.spotbuy.Adapters.VehicleCategoryListAdapter;
 import com.s19mobility.spotbuy.BuildConfig;
+import com.s19mobility.spotbuy.DataBase.ImageManager;
+import com.s19mobility.spotbuy.DataBase.SharedPrefs;
+import com.s19mobility.spotbuy.DataBase.UserManager;
+import com.s19mobility.spotbuy.DataBase.VehicleDetails.VehicleCategoryManager;
+import com.s19mobility.spotbuy.Models.ImageModel;
+import com.s19mobility.spotbuy.Models.User;
 import com.s19mobility.spotbuy.Models.VehicleCategory;
 import com.s19mobility.spotbuy.Models.VehiclePost;
 import com.s19mobility.spotbuy.Others.Constants;
 import com.s19mobility.spotbuy.Others.GPSTracker;
-import com.s19mobility.spotbuy.Others.WrapContentGridlayoutManager;
-import com.s19mobility.spotbuy.Others.WrapContentLinearLayoutManager;
 import com.s19mobility.spotbuy.R;
+import com.s19mobility.spotbuy.Widgets.WrapContentGridlayoutManager;
+import com.s19mobility.spotbuy.Widgets.WrapContentLinearLayoutManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -73,8 +83,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     LinearLayout emptyIndicator;
 
     GPSTracker gpsTracker;
-    FirestoreRecyclerAdapter adapterCategory,adapterVehicle;
+    FirestoreRecyclerAdapter adapterCategory, adapterVehicle;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPrefs sharedPrefs;
+
+    ImageView search;
+
+    UserManager userManager;
+    VehicleCategoryManager vehicleCategoryManager;
+    ImageManager imageManager;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -90,8 +108,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Root = inflater.inflate(R.layout.fragment_home, container, false);
-
-
+        sharedPrefs = new SharedPrefs(requireContext());
+        userManager = new UserManager(requireContext());
+        imageManager = new ImageManager(requireContext());
+        vehicleCategoryManager = new VehicleCategoryManager(requireContext());
         initView();
 
         return Root;
@@ -109,8 +129,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         userImage = headerView.findViewById(R.id.userImage);
         userImage.setOnClickListener(this);
+        try {
+            User user =userManager.getUserById(sharedPrefs.getSharedUID());
+            ImageModel imageModel =imageManager.getImageByLink(user.getImage());
+            userImage.setImageBitmap(imageModel.getImageBitmap());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         userName = headerView.findViewById(R.id.userName);
+        userName.setText(sharedPrefs.getSharedName());
         userName.setOnClickListener(this);
 
         notifications = headerView.findViewById(R.id.notifications);
@@ -138,21 +167,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         location = Root.findViewById(R.id.location);
         location.setOnClickListener(this);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                        ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    gpsTracker = new GPSTracker(requireContext());
-                    if (gpsTracker.canGetLocation()) {
+        new Handler().post(() -> {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                gpsTracker = new GPSTracker(requireContext());
+                if (gpsTracker.canGetLocation()) {
 
-                        location.setText(gpsTracker.getLocality());
-                    }
+                    location.setText(gpsTracker.getLocality());
                 }
-
-
             }
+
+
         });
 
         VehicleCategory = Root.findViewById(R.id.VehicleCategory);
@@ -163,34 +189,58 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         title = Root.findViewById(R.id.title);
 
         vehiclesList = Root.findViewById(R.id.vehiclesList);
+        emptyIndicator = Root.findViewById(R.id.emptyIndicator);
+        emptyIndicator.setVisibility(View.GONE);
 
         vehiclesList.setLayoutManager(new WrapContentGridlayoutManager(requireContext(), 2));
-        setVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active",true).whereEqualTo("status","APPROVED"));
+        setVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active", true).whereEqualTo("status", "APPROVED"));
 
-        emptyIndicator= Root.findViewById(R.id.emptyIndicator);
-        emptyIndicator.setVisibility(View.GONE);
+
+        search = Root.findViewById(R.id.search);
+        search.setOnClickListener(this);
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     protected void setCategoryAdapter() {
-       Query query =db.collection("VehicleCategory").orderBy("preference");
-
-        FirestoreRecyclerOptions<VehicleCategory> options = new FirestoreRecyclerOptions.Builder<VehicleCategory>()
-                .setQuery(query, VehicleCategory.class)
-                .build();
-
-        adapterCategory = new CategoriesListAdapter(options, requireContext(),this);
-        VehicleCategory.setAdapter(adapterCategory);
-        adapterCategory.notifyDataSetChanged();
+        if(vehicleCategoryManager.getCount()>1){
+            VehicleCategoryListAdapter categoryListAdapter =new VehicleCategoryListAdapter(vehicleCategoryManager.listAll(),this,requireContext());
+            VehicleCategory.setAdapter(categoryListAdapter);
+        }
+        else {
+            Query query = db.collection("VehicleCategory").orderBy("preference");
+            FirestoreRecyclerOptions<VehicleCategory> options = new FirestoreRecyclerOptions.Builder<VehicleCategory>()
+                    .setQuery(query, VehicleCategory.class)
+                    .build();
+            adapterCategory = new CategoriesListAdapter(options, requireContext(), this);
+            VehicleCategory.setAdapter(adapterCategory);
+            adapterCategory.startListening();
+            adapterCategory.notifyDataSetChanged();
+        }
     }
+
     @SuppressLint("NotifyDataSetChanged")
-    protected void setVehicleAdapter( Query query) {
+    protected void setVehicleAdapter(Query query) {
         FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
                 .setQuery(query, VehiclePost.class)
+                .setLifecycleOwner(this)
                 .build();
 
-        adapterVehicle = new VehicleListAdapter(options, requireContext(),this);
+        adapterVehicle = new VehicleListAdapter(options, requireContext(), this);
         vehiclesList.setAdapter(adapterVehicle);
+        adapterVehicle.startListening();
+        adapterVehicle.notifyDataSetChanged();
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    protected void updateVehicleAdapter(Query query) {
+        FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
+                .setQuery(query, VehiclePost.class)
+                .setLifecycleOwner(this)
+                .build();
+
+        adapterVehicle.updateOptions(options);
         adapterVehicle.notifyDataSetChanged();
     }
 
@@ -204,13 +254,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     @SuppressLint("SetTextI18n")
     public void onCategoryClickListener(VehicleCategory vehicleCategory) {
-        if (Objects.equals(vehicleCategory.getName(), "All")){
+        if (Objects.equals(vehicleCategory.getName(), "All")) {
             title.setText("All Vehicles");
-            setVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active",true).whereEqualTo("status","APPROVED"));
-        }
-        else{
+            updateVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active", true).whereEqualTo("status", "APPROVED"));
+        } else {
             title.setText(vehicleCategory.getName());
-            setVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active",true).whereEqualTo("status","APPROVED").whereEqualTo("categoryId",vehicleCategory.getId()));
+            updateVehicleAdapter(db.collection(VehiclePostCollection).whereEqualTo("active", true).whereEqualTo("status", "APPROVED").whereEqualTo("categoryId", vehicleCategory.getId()));
         }
 
     }
@@ -278,8 +327,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
         if (logout == view) {
             drawer_layout.closeDrawers();
-            //TODO Logout Dialog
+            ((HomeActivity) requireActivity()).logoutConfirmationDialog();
 
+        }
+
+        if (view == search) {
+            startActivity(new Intent(requireActivity(), SearchActivity.class));
         }
 
 
@@ -306,31 +359,54 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        adapterCategory.startListening();
+        try {
+            adapterCategory.startListening();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         adapterVehicle.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        //adapterCategory.stopListening();
+        try {
+            adapterCategory.stopListening();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         adapterVehicle.stopListening();
     }
 
-    public void showEmptyIndicator(){
+    public void showEmptyIndicator() {
 
         try {
             emptyIndicator.setVisibility(View.VISIBLE);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
-    public void hideEmptyIndicator(){
+
+    public void hideEmptyIndicator() {
         try {
             emptyIndicator.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public void sendMessage(String id) {
+        if (Objects.equals(id, sharedPrefs.getSharedUID())) {
+            Toast.makeText(requireContext(), "This is your post.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        User otherUser = new User();
+        otherUser.setId(id);
+        Intent intent = new Intent(requireActivity(), ChatActivity.class);
+        intent.putExtra("User", otherUser);
+        startActivity(intent);
+
+    }
+
 
 }

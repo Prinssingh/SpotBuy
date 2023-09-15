@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.appcheck.FirebaseAppCheck;
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
 import com.s19mobility.spotbuy.Activity.HomeActivity;
 import com.s19mobility.spotbuy.Activity.LoginActivity;
@@ -19,16 +20,16 @@ import com.s19mobility.spotbuy.Others.ReadBasicFireBaseData;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashScreenActivity extends AppCompatActivity {
-    SharedPrefs sp;
+    SharedPrefs sharedPrefs;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sp = new SharedPrefs(this);
+        sharedPrefs = new SharedPrefs(this);
 
-        if (sp.getLogin())
+        if (sharedPrefs.getLogin())
             new ReadBasicFireBaseData(this);
 
 
@@ -36,9 +37,9 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         new Handler().postDelayed(() -> {
 
-            if (sp.getLogin() && sp.isProfileSet())
+            if (sharedPrefs.getLogin() && sharedPrefs.isProfileSet())
                 startActivity(new Intent(SplashScreenActivity.this, HomeActivity.class));
-            else if (sp.getLogin() && !sp.isProfileSet()) {
+            else if (sharedPrefs.getLogin() && !sharedPrefs.isProfileSet()) {
                 Intent profileIntent = new Intent(this, ProfileActivity.class);
                 profileIntent.putExtra(Constants.ProfileMode, "edit");
                 startActivity(profileIntent);
@@ -54,7 +55,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
         firebaseAppCheck.installAppCheckProviderFactory(
                 PlayIntegrityAppCheckProviderFactory.getInstance());
-    }
+        firebaseAppCheck.installAppCheckProviderFactory(
+                DebugAppCheckProviderFactory.getInstance());
 
+    }
 
 }

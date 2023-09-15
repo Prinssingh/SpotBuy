@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    app:cardElevation="8dp"
+    app:cardCornerRadius="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/imageRelate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/userImage"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/gray_1"
+                android:src="@drawable/user_default"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded" />
+
+            <ProgressBar
+                android:id="@+id/imageProgressIndicator"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminateTint="@color/theme_primary"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_toStartOf="@+id/dateTime"
+            android:layout_toEndOf="@+id/imageRelate"
+            android:fontFamily="@font/baloo_normal"
+            android:text="User Name"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/dateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="Date Time"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/newMessageIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            app:cardBackgroundColor="@color/theme_primary"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:layout_below="@+id/dateTime"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+            app:cardElevation="8dp">
+           <ImageView
+               android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:padding="2dp"
+               android:layout_margin="2dp"
+               android:src="@drawable/ic_notification"
+               app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/lastMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_toStartOf="@+id/newMessageIndicator"
+            android:layout_toEndOf="@+id/imageRelate"
+            android:fontFamily="@font/baloo_normal"
+            android:text="User  Message"
+            android:singleLine="true"
+            android:layout_below="@+id/userName"
+            android:ellipsize="end"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

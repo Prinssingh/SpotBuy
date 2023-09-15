@@ -1,14 +1,29 @@
 package com.s19mobility.spotbuy.Activity;
 
+import static com.s19mobility.spotbuy.Others.Constants.CAMERA_ACTION_PICK_REQUEST_CODE;
+import static com.s19mobility.spotbuy.Others.Constants.CAMERA_REQUEST;
+import static com.s19mobility.spotbuy.Others.Constants.PICK_IMAGE_GALLERY_REQUEST_CODE;
+import static com.s19mobility.spotbuy.Others.Constants.STORAGE_REQUEST;
 import static com.s19mobility.spotbuy.Others.Constants.UserCollection;
 import static com.s19mobility.spotbuy.Others.Constants.VehiclePostCollection;
+import static com.s19mobility.spotbuy.Others.Constants.getAllTransmissionModes;
+import static com.s19mobility.spotbuy.Others.Constants.getNumberOfOwners;
+import static com.s19mobility.spotbuy.Others.Constants.getYearList;
+import static com.s19mobility.spotbuy.Others.Utils.deleteImageFromFirebase;
 
-import android.content.ClipData;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,7 +34,12 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.tasks.Continuation;
@@ -34,36 +54,40 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.s19mobility.spotbuy.Adapters.ImageListAdapter;
+import com.s19mobility.spotbuy.Adapters.VehicleImageListAdapter;
 import com.s19mobility.spotbuy.DataBase.SharedPrefs;
+import com.s19mobility.spotbuy.DataBase.UserManager;
 import com.s19mobility.spotbuy.DataBase.VehicleDetails.FuelTypeManager;
 import com.s19mobility.spotbuy.DataBase.VehicleDetails.VehicleBrandManager;
 import com.s19mobility.spotbuy.DataBase.VehicleDetails.VehicleBrandModelManager;
 import com.s19mobility.spotbuy.DataBase.VehicleDetails.VehicleCategoryManager;
+import com.s19mobility.spotbuy.DataBase.VehiclePostManager;
+import com.s19mobility.spotbuy.Dialogs.LoadingDialog;
+import com.s19mobility.spotbuy.MainActivity;
 import com.s19mobility.spotbuy.Models.FuelType;
+import com.s19mobility.spotbuy.Models.User;
 import com.s19mobility.spotbuy.Models.VehicleBrand;
 import com.s19mobility.spotbuy.Models.VehicleBrandModel;
 import com.s19mobility.spotbuy.Models.VehiclePost;
-import com.s19mobility.spotbuy.Others.LoadingDialog;
 import com.s19mobility.spotbuy.Others.OnImageUploadListener;
 import com.s19mobility.spotbuy.Others.STATUS;
+import com.s19mobility.spotbuy.Others.SaveImageByteToDatabase;
 import com.s19mobility.spotbuy.Others.Utils;
 import com.s19mobility.spotbuy.R;
+import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import android.content.Context;
 
-public class AddNewPostActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddNewPostActivity extends MainActivity implements View.OnClickListener {
     ImageView back;
 
-    ImageView sampleImage;
-    ViewPager vehicleImages;
-    List<String> imageList = new ArrayList<String>();
+    List<String> imageList = new ArrayList<>(); //DownloadAbe Links
     ProgressBar imageProgressIndicator;
     AutoCompleteTextView vehicleCategoryList,
             vehicleBrandList,
@@ -92,34 +116,52 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
     VehicleBrandManager brandManager;
     VehicleBrandModelManager brandModelManager;
     FuelTypeManager fuelTypeManager;
+    VehiclePostManager vehiclePostManager;
+    UserManager userManager;
+    User user;
     SharedPrefs sharedPrefs;
 
     VehiclePost currentVehicle;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    int PICK_IMAGE_MULTIPLE = 1;
-    ArrayList<Uri> mArrayUri = new ArrayList<>();
-    Utils utils;
+
+
+    Utils utils;//For json Data Sates and cities
     LoadingDialog loadingDialog;
+
+    RecyclerView croppedImageList;
+    Button addImage;
+    ImageView TestImage;
+    VehicleImageListAdapter ImageAdapter;
+    String currentPhotoPath = "";
+    String[] cameraPermission;
+    String[] storagePermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_post);
-        currentVehicle = new VehiclePost();
+        cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 
+        currentVehicle = new VehiclePost();
+        sharedPrefs = new SharedPrefs(this);
         categoryManager = new VehicleCategoryManager(this);
         categoryList = categoryManager.getStringList();
 
         brandManager = new VehicleBrandManager(this);
         brandModelManager = new VehicleBrandModelManager(this);
+        vehiclePostManager = new VehiclePostManager(this);
+        userManager = new UserManager(this);
+        user= userManager.getUserById(sharedPrefs.getSharedUID());
 
         fuelTypeManager = new FuelTypeManager(this);
         fuelList = fuelTypeManager.getStringList();
 
-        sharedPrefs = new SharedPrefs(this);
+
         utils = new Utils(this);
         loadingDialog = new LoadingDialog(this);
+        ImageAdapter = new VehicleImageListAdapter(imageList, this, this);
         initView();
     }
 
@@ -127,13 +169,18 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
 
-        sampleImage = findViewById(R.id.sampleImage);
-        sampleImage.setOnClickListener(this);
+        croppedImageList = findViewById(R.id.croppedImageList);
+        croppedImageList.setLayoutManager(new GridLayoutManager(this, 2));
+        croppedImageList.setAdapter(ImageAdapter);
+        addImage = findViewById(R.id.addImage);
+        addImage.setVisibility(View.GONE);
+        addImage.setOnClickListener(view -> showImagePicDialog());
 
-        vehicleImages = findViewById(R.id.vehicleImages);
-        vehicleImages.setOnClickListener(this);   // showing all images in imageswitcher
+        TestImage = findViewById(R.id.TestImage);
+        TestImage.setOnClickListener(view -> showImagePicDialog());
 
         imageProgressIndicator = findViewById(R.id.imageProgressIndicator);
+
 
         vehicleCategoryList = findViewById(R.id.vehicleCategoryList);
         vehicleBrandList = findViewById(R.id.vehicleBrandList);
@@ -142,74 +189,53 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
 
         //Set Category Adapter
         ArrayAdapter<String> adapterCategory;
-        adapterCategory = new ArrayAdapter<String>(this,
+        adapterCategory = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, categoryList);
         vehicleCategoryList.setAdapter(adapterCategory);
-        vehicleCategoryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String CategoryId = categoryManager.listAll().get(i).getId();
-                currentVehicle.setCategoryId(CategoryId);
-                List<String> brandList = brandManager.getBrandByCategoryId(CategoryId);
-                setBrandAdapter(brandList);
+        vehicleCategoryList.setOnItemClickListener((adapterView, view, i, l) -> {
+            String CategoryId = categoryManager.listAll().get(i).getId();
+            currentVehicle.setCategoryId(CategoryId);
+            List<String> brandList = brandManager.getBrandByCategoryId(CategoryId);
+            setBrandAdapter(brandList);
 
-            }
         });
 
         //Set Fuel Adapter Adapter
         fuelTypeList = findViewById(R.id.fuelTypeList);
         ArrayAdapter<String> adapterFuel;
-        adapterFuel = new ArrayAdapter<String>(this,
+        adapterFuel = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, fuelList);
         fuelTypeList.setAdapter(adapterFuel);
-        fuelTypeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                FuelType tempFuel = fuelTypeManager.listAll().get(i);
-                currentVehicle.setFuelId(tempFuel.getId());
-                currentVehicle.setFuelType(tempFuel.getName());
+        fuelTypeList.setOnItemClickListener((adapterView, view, i, l) -> {
+            FuelType tempFuel = fuelTypeManager.listAll().get(i);
+            currentVehicle.setFuelId(tempFuel.getId());
+            currentVehicle.setFuelType(tempFuel.getName());
 
 
-            }
         });
 
         //Set Year Model Adapter
         yearModelList = findViewById(R.id.yearModelList);
         ArrayAdapter<String> adapterYear;
-        adapterYear = new ArrayAdapter<String>(this,
+        adapterYear = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, getYearList());
         yearModelList.setAdapter(adapterYear);
-        yearModelList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentVehicle.setModelYear(Integer.parseInt(getYearList().get(i)));
-            }
-        });
+        yearModelList.setOnItemClickListener((adapterView, view, i, l) -> currentVehicle.setModelYear(Integer.parseInt(getYearList().get(i))));
         //Set owner number Adapter
         ownerNumberList = findViewById(R.id.ownerNumberList);
         ArrayAdapter<String> adapterOwner;
-        adapterOwner = new ArrayAdapter<String>(this,
+        adapterOwner = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, getNumberOfOwners());
         ownerNumberList.setAdapter(adapterOwner);
-        ownerNumberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentVehicle.setNumberOfOwner(Integer.parseInt(getNumberOfOwners().get(i)));
-            }
-        });
+        ownerNumberList.setOnItemClickListener((adapterView, view, i, l) -> currentVehicle.setNumberOfOwner(Integer.parseInt(getNumberOfOwners().get(i))));
 
         //Set owner number Adapter
         transmissionModeList = findViewById(R.id.transmissionModeList);
         ArrayAdapter<String> adapterTransmissionMode;
-        adapterTransmissionMode = new ArrayAdapter<String>(this,
+        adapterTransmissionMode = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, getAllTransmissionModes());
         transmissionModeList.setAdapter(adapterTransmissionMode);
-        transmissionModeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentVehicle.setTransmissionMode(getAllTransmissionModes().get(i));
-            }
-        });
+        transmissionModeList.setOnItemClickListener((adapterView, view, i, l) -> currentVehicle.setTransmissionMode(getAllTransmissionModes().get(i)));
 
         KMSRidden = findViewById(R.id.KMSRidden);
         description = findViewById(R.id.description);
@@ -220,19 +246,14 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
         stateList = findViewById(R.id.stateList);
         cityList = findViewById(R.id.cityList);
         //Country adapter
-        ArrayAdapter adapterCountry = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapterCountry = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, utils.getCountrylist());
         countryList.setAdapter(adapterCountry);
-        countryList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentVehicle.setCountry("India");
-            }
-        });
+        countryList.setOnItemClickListener((adapterView, view, i, l) -> currentVehicle.setCountry("India"));
 
         //State
 
-        ArrayAdapter adapterSatet = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapterSatet = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, utils.getStateList());
         stateList.setAdapter(adapterSatet);
         stateList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -250,76 +271,50 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void setBrandAdapter(List<String> brandList) {
-        ArrayAdapter adapterBrand = new ArrayAdapter<String>(this,
+        ArrayAdapter adapterBrand = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, brandList);
         vehicleBrandList.setAdapter(adapterBrand);
-        vehicleBrandList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                VehicleBrand Brand = brandManager.listAllbyCategoryId(currentVehicle.getCategoryId()).get(i);
-                currentVehicle.setBrandId(Brand.getId());
-                currentVehicle.setTitle("" + Brand.getName());
-                List<String> brandModelList = brandModelManager.getBrandModelByBrandId(Brand.getId());
-                setBrandModelAdapter(brandModelList);
-            }
+        vehicleBrandList.setOnItemClickListener((adapterView, view, i, l) -> {
+            VehicleBrand Brand = brandManager.listAllbyCategoryId(currentVehicle.getCategoryId()).get(i);
+            currentVehicle.setBrandId(Brand.getId());
+            currentVehicle.setTitle("" + Brand.getName());
+            List<String> brandModelList = brandModelManager.getBrandModelByBrandId(Brand.getId());
+            setBrandModelAdapter(brandModelList);
         });
 
     }
 
     private void setBrandModelAdapter(List<String> brandModelList) {
         ArrayAdapter<String> adapterBrandModel;
-        adapterBrandModel = new ArrayAdapter<String>(this,
+        adapterBrandModel = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, brandModelList);
         vehicleBrandModelList.setAdapter(adapterBrandModel);
-        vehicleBrandModelList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                VehicleBrandModel model = brandModelManager.listAllbyBrandId(currentVehicle.getBrandId()).get(i);
-                currentVehicle.setModelId(model.getId());
-                currentVehicle.setTitle(currentVehicle.getTitle() + " " + model.getName());
-            }
+        vehicleBrandModelList.setOnItemClickListener((adapterView, view, i, l) -> {
+            VehicleBrandModel model = brandModelManager.listAllbyBrandId(currentVehicle.getBrandId()).get(i);
+            currentVehicle.setModelId(model.getId());
+            currentVehicle.setTitle(currentVehicle.getTitle() + " " + model.getName());
         });
     }
 
     private void setCityAdapter(String state) {
         ArrayAdapter<String> adapterCity;
-        adapterCity = new ArrayAdapter<String>(this,
+        adapterCity = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, utils.getCityList(state));
         cityList.setAdapter(adapterCity);
-        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentVehicle.setCity(utils.getCityList(state).get(i));
-            }
-        });
+        cityList.setOnItemClickListener((adapterView, view, i, l) -> currentVehicle.setCity(utils.getCityList(state).get(i)));
     }
 
     @Override
     public void onClick(View view) {
         if (view == back) {
-            finish();
+            onBackPressed();
         }
 
-        if (view == sampleImage || view == vehicleImages) {
-            sampleImage.setVisibility(View.GONE);
-            imageProgressIndicator.setVisibility(View.VISIBLE);
-
-            Intent intent = new Intent();
-
-            // setting type to select to be image
-            intent.setType("image/*");
-
-            // allowing multiple image to be selected
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Pictures ( upto 5"), PICK_IMAGE_MULTIPLE);
-
-        }
 
         if (view == saveButton) {
+            loadingDialog.show();
+            getEnteredData();
             if (validateEnteredData()) {
-                loadingDialog.show();
-                getEnteredData();
                 db.collection(VehiclePostCollection)
                         .add(currentVehicle)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -327,12 +322,20 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
                             public void onSuccess(DocumentReference documentReference) {
                                 documentReference.update("id", documentReference.getId());
 
-                                db.collection(UserCollection)
-                                        .document(sharedPrefs.getSharedID())
-                                        .update("availablePost",FieldValue.increment(-1),"totalPost",FieldValue.increment(1));
+                                //Update Local Data Base
+                                currentVehicle.setId(documentReference.getId());
+                                vehiclePostManager.insert(currentVehicle);
+                                user.setAvailablePost(user.getAvailablePost()-1);
+                                user.setTotalPost(user.getTotalPost()+1);
+                                userManager.update(user);
+                                for(String url : currentVehicle.getImageList())
+                                    new SaveImageByteToDatabase(AddNewPostActivity.this).execute(url);
 
-                                Toast.makeText(AddNewPostActivity.this, "Post Added!", Toast.LENGTH_SHORT).show();
-                                onBackPressed();
+                                db.collection(UserCollection)
+                                        .document(sharedPrefs.getSharedUID())
+                                        .update("availablePost", FieldValue.increment(-1), "totalPost", FieldValue.increment(1));
+
+                                showSuccessDialog();
 
                             }
                         })
@@ -340,7 +343,7 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(AddNewPostActivity.this, "Operation Failed,Please try again!", Toast.LENGTH_LONG).show();
-
+                                showFailureDialog();
                             }
                         })
                         .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -351,172 +354,182 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
                         });
 
 
+            } else {
+                Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
+                loadingDialog.dismiss();
             }
         }
     }
 
     private void getEnteredData() {
-        currentVehicle.setKmsRidden(Integer.parseInt(KMSRidden.getText().toString()));
-        currentVehicle.setDescription(description.getText().toString().trim());
-        currentVehicle.setPrice(Float.parseFloat(price.getText().toString().trim()));
 
-        currentVehicle.setActive(false);
-        Calendar cal = Calendar.getInstance();
-        currentVehicle.setDateTime(cal.getTime());
-        currentVehicle.setPostTimeStart(cal.getTime());
-        cal.add(Calendar.MONTH, 12);
-        currentVehicle.setPostTimeEnd(cal.getTime());
-        currentVehicle.setImageList(imageList);
-        currentVehicle.setStatus(String.valueOf(STATUS.PENDING));
-        currentVehicle.setSellerId(sharedPrefs.getSharedID());
+        try {
+            currentVehicle.setKmsRidden(Integer.parseInt(KMSRidden.getText().toString()));
+            currentVehicle.setDescription(description.getText().toString().trim());
+            currentVehicle.setPrice(Float.parseFloat(price.getText().toString().trim()));
 
+            currentVehicle.setActive(false);
+            Calendar cal = Calendar.getInstance();
+            currentVehicle.setDateTime(cal.getTime());
+            currentVehicle.setPostTimeStart(cal.getTime());
+            cal.add(Calendar.MONTH, 12); //TODO :- post Expires in 12 months
+            currentVehicle.setPostTimeEnd(cal.getTime());
+            currentVehicle.setImageList(imageList);
+            currentVehicle.setStatus(String.valueOf(STATUS.PENDING));
+            currentVehicle.setSellerId(sharedPrefs.getSharedUID());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
 
     }
 
     private boolean validateEnteredData() {
-        //TODO
-        return true;
-    }
+        boolean isValid = true;
 
-    private List<String> getYearList() {
-        Calendar cal = Calendar.getInstance();
-        int currentyear = cal.get(Calendar.YEAR);
-        List<String> years = new ArrayList<>();
-
-        for (int i = currentyear; i >= 1990; i--) {
-            years.add(String.valueOf(i));
+        if (imageList.isEmpty()) {
+            isValid = false;
+            TestImage.requestFocus();
+            Toast.makeText(this, "Please select at least image of your vehicle.", Toast.LENGTH_LONG).show();
         }
 
-        return years;
-
-    }
-
-    private List<String> getNumberOfOwners() {
-        List<String> owners = new ArrayList<>();
-
-        for (int i = 1; i <= 10; i++) {
-            owners.add(String.valueOf(i));
+        if (currentVehicle.getCategoryId() == null || currentVehicle.getCategoryId().isEmpty() || currentVehicle.getCategoryId() == "") {
+            isValid = false;
+            vehicleCategoryList.setError("Empty");
+            vehicleCategoryList.requestFocus();
         }
 
-        return owners;
+        if (currentVehicle.getBrandId() == null || currentVehicle.getBrandId().isEmpty() || currentVehicle.getBrandId() == "") {
+            isValid = false;
+            vehicleBrandList.setError("Empty");
+            vehicleBrandList.requestFocus();
+        }
+
+        if (currentVehicle.getModelId() == null || currentVehicle.getModelId().isEmpty() || currentVehicle.getModelId() == "") {
+            isValid = false;
+            vehicleBrandModelList.setError("Empty");
+            vehicleBrandModelList.requestFocus();
+        }
+
+        if (currentVehicle.getFuelType() == null || currentVehicle.getFuelType().isEmpty() || currentVehicle.getFuelType() == "") {
+            isValid = false;
+            fuelTypeList.setError("Empty");
+            fuelTypeList.requestFocus();
+        }
+
+        if (currentVehicle.getModelYear() < 1990) {
+            isValid = false;
+            yearModelList.setError("Empty");
+            yearModelList.requestFocus();
+        }
+
+        if (currentVehicle.getNumberOfOwner() < 1 || currentVehicle.getNumberOfOwner() > 10) {
+            isValid = false;
+            ownerNumberList.setError("Empty");
+            ownerNumberList.requestFocus();
+        }
+
+        if (currentVehicle.getTransmissionMode() == null || currentVehicle.getTransmissionMode().isEmpty() || currentVehicle.getTransmissionMode() == "") {
+            isValid = false;
+            transmissionModeList.setError("Empty");
+            transmissionModeList.requestFocus();
+        }
+
+        if (currentVehicle.getKmsRidden() < 1 || currentVehicle.getKmsRidden() > 100000000) {
+            isValid = false;
+            KMSRidden.setError("Invalid");
+            KMSRidden.requestFocus();
+        }
+
+        if (currentVehicle.getDescription() == null || currentVehicle.getDescription().isEmpty() || currentVehicle.getDescription() == "") {
+            isValid = false;
+            description.setError("Empty");
+            description.requestFocus();
+        }
+
+        if (currentVehicle.getPrice() < 1 || currentVehicle.getPrice() > 100000000) {
+            isValid = false;
+            price.setError("Invalid");
+            price.requestFocus();
+        }
+
+        if (currentVehicle.getCountry() == null || currentVehicle.getCountry().isEmpty() || currentVehicle.getCountry() == "") {
+            isValid = false;
+            countryList.setError("Empty");
+            countryList.requestFocus();
+        }
+        if (currentVehicle.getState() == null || currentVehicle.getState().isEmpty() || currentVehicle.getState() == "") {
+            isValid = false;
+            stateList.setError("Empty");
+            stateList.requestFocus();
+        }
+        if (currentVehicle.getCity() == null || currentVehicle.getCity().isEmpty() || currentVehicle.getCity() == "") {
+            isValid = false;
+            cityList.setError("Empty");
+            cityList.requestFocus();
+        }
+
+
+        return isValid;
+    }
+
+    public void setTestImageVisibility(){
+        if(imageList.isEmpty()) {
+            TestImage.setVisibility(View.VISIBLE);
+            addImage.setVisibility(View.GONE);
+        }
+        else {
+            TestImage.setVisibility(View.GONE);
+            addImage.setVisibility(View.VISIBLE);
+        }
+
+        if(imageList.size()==0) {
+            TestImage.setVisibility(View.VISIBLE);
+            addImage.setVisibility(View.GONE);
+        }
+        else {
+            TestImage.setVisibility(View.GONE);
+            addImage.setVisibility(View.VISIBLE);
+        }
+
+
 
     }
 
-    private List<String> getAllTransmissionModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add("Manual");
-        modes.add("Automatic");
-        modes.add("Semi-automatic");
-        modes.add("Continuously Variable");
-        modes.add("Dual Clutch");
-        return modes;
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // When an Image is picked
-        if (requestCode == PICK_IMAGE_MULTIPLE && resultCode == RESULT_OK && null != data) {
-            // Get the Image from data
-            if (data.getClipData() != null) {
-                ClipData mClipData = data.getClipData();
-                int cout = data.getClipData().getItemCount();
-                for (int i = 0; i < cout; i++) {
-                    // adding imageuri in array
-                    Uri imageurl = data.getClipData().getItemAt(i).getUri();
-                    mArrayUri.add(imageurl);
+    private void setVehicleImageFromUri(Uri uri) {
+        imageProgressIndicator.setVisibility(View.VISIBLE);
+        try {
+            Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+            uploadFireBaseImage(bmp, new OnImageUploadListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onSuccess() {
+                    ImageAdapter.notifyDataSetChanged();
+                    ImageAdapter.notifyItemInserted(imageList.size() - 1);
+                    setTestImageVisibility();
+                    imageProgressIndicator.setVisibility(View.GONE);
                 }
 
-            } else {
-                Uri imageurl = data.getData();
-                mArrayUri.add(imageurl);
-
-            }
-
-            vehicleImages.setAdapter(new ImageListAdapter(this, mArrayUri));
-            for (Uri uri : mArrayUri) {
-                try {
-                    Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                    uploadFireBaseImage(bmp, new OnImageUploadListener() {
-                        @Override
-                        public void onSuccess() {
-
-                        }
-
-                        @Override
-                        public void onStart() {
-
-                        }
-
-                        @Override
-                        public void onFailure() {
-
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
+                @Override
+                public void onStart() {
+                    imageProgressIndicator.setVisibility(View.VISIBLE);
                 }
-            }
 
-            sampleImage.setVisibility(View.GONE);
-            imageProgressIndicator.setVisibility(View.GONE);
-
-
-        } else {
-            // show this if no image is selected
-            sampleImage.setVisibility(View.VISIBLE);
-            imageProgressIndicator.setVisibility(View.GONE);
-            Toast.makeText(this, "You haven't picked Image", Toast.LENGTH_LONG).show();
+                @Override
+                public void onFailure() {
+                    imageProgressIndicator.setVisibility(View.GONE);
+                    Toast.makeText(AddNewPostActivity.this, "Failed to add image!!", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
+        catch (IOException e) {
+            e.printStackTrace();
+            imageProgressIndicator.setVisibility(View.GONE);
 
-
+        }
+        finally {
+            imageProgressIndicator.setVisibility(View.GONE);
+        }
     }
-
-
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == MultiImagePicker.REQUEST_PICK_MULTI_IMAGES && resultCode == RESULT_OK) {
-//            MultiImagePicker.Result result = new MultiImagePicker.Result(data);
-//            if (result.isSuccess()) {
-//                ArrayList<Uri> imageListInUri = result.getImageList(); // List os selected images as content Uri format
-//
-//                for (Uri uri : imageListInUri) {
-//                    try {
-//                        Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-//                        uploadFireBaseImage(bmp, new OnImageUploadListener() {
-//                            @Override
-//                            public void onSuccess() {
-//
-//                            }
-//
-//                            @Override
-//                            public void onStart() {
-//
-//                            }
-//
-//                            @Override
-//                            public void onFailure() {
-//
-//                            }
-//                        });
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                vehicleImages.setAdapter(new ScrollingImageAdapter(this, imageList));
-//                sampleImage.setVisibility(View.GONE);
-//            } else {
-//                Toast.makeText(this, "Error!! Try Again!!", Toast.LENGTH_LONG).show();
-//                sampleImage.setVisibility(View.VISIBLE);
-//            }
-//
-//
-//            imageProgressIndicator.setVisibility(View.GONE);
-//        }
-//    }
-
 
     private void uploadFireBaseImage(Bitmap bitmap, OnImageUploadListener listener) {
         listener.onStart();
@@ -552,6 +565,221 @@ public class AddNewPostActivity extends AppCompatActivity implements View.OnClic
                     }
                 });
     }
+
+    private void showSuccessDialog() {
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Success")
+                .setMessage("Your post has been placed successfully. Let our team examine your post and approve it.\n\n\nUsually it take 24 hrs. but due to heavy traffic it may take 7 days. \n\n Thanking you!!")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        loadingDialog.dismiss();
+                        finish();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        dialogInterface.dismiss();
+                        loadingDialog.dismiss();
+                        finish();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void showFailureDialog() {
+        AlertDialog.Builder builder;
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Failure!!")
+                .setMessage("Sorry your post failed to registered. \n\nPlease try again...")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setCancelable(false);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
+
+    public void deleteImage(String imageUrl, int position) {
+        imageList.remove(position);
+        deleteImageFromFirebase(imageUrl);
+        ImageAdapter.notifyItemRemoved(position);
+        setTestImageVisibility();
+
+
+    }
+
+
+    private void showImagePicDialog() {
+        String[] options = {"Camera", "Gallery"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pick Image From");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    if (!checkCameraPermission()) {
+                        requestCameraPermission();
+                    } else {
+                        openCamera();
+                    }
+                } else if (which == 1) {
+                    if (!checkStoragePermission()) {
+                        requestStoragePermission();
+                    } else {
+                        openImagesDocument();
+                    }
+                }
+            }
+        });
+        builder.create().show();
+    }
+
+    // checking storage permissions
+    private Boolean checkStoragePermission() {
+        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    // Requesting  gallery permission
+    private void requestStoragePermission() {
+        requestPermissions(storagePermission, STORAGE_REQUEST);
+    }
+
+    // checking camera permissions
+    private Boolean checkCameraPermission() {
+        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
+        boolean result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result && result1;
+    }
+
+    // Requesting camera permission
+    private void requestCameraPermission() {
+        requestPermissions(cameraPermission, CAMERA_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_REQUEST: {
+                if (grantResults.length > 0) {
+                    boolean camera_accepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeStorageaccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if (camera_accepted && writeStorageaccepted) {
+                        openCamera();
+                    } else {
+                        Toast.makeText(this, "Please Enable Camera and Storage Permissions", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            break;
+            case STORAGE_REQUEST: {
+                if (grantResults.length > 0) {
+                    boolean writeStorageaccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (writeStorageaccepted) {
+                        openImagesDocument();
+                    } else {
+                        Toast.makeText(this, "Please Enable Storage Permissions", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    private void openCamera() {
+        Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File file = getImageFile(); // 1
+        Uri uri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) // 2
+            uri = FileProvider.getUriForFile(this, "com.s19mobility.spotbuy.provider", file);
+        else
+            uri = Uri.fromFile(file); // 3
+        pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri); // 4
+        startActivityForResult(pictureIntent, CAMERA_ACTION_PICK_REQUEST_CODE);
+    }
+
+    private File getImageFile() {
+        String imageFileName = "JPEG_" + System.currentTimeMillis() + "_";
+        File storageDir = new File(
+                Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DCIM
+                ), "Camera"
+        );
+        File file = null;
+        try {
+            file = File.createTempFile(
+                    imageFileName, ".jpg", storageDir
+
+            );
+            currentPhotoPath = "file:" + file.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return file;
+    }
+
+    private void openCropActivity(Uri sourceUri, Uri destinationUri) {
+        UCrop.Options options = new UCrop.Options();
+        UCrop.of(sourceUri, destinationUri)
+                .withMaxResultSize(1050, 825)
+                .withAspectRatio(12f, 8f)
+                .withOptions(options)
+                .start(this);
+    }
+
+    private void openImagesDocument() {
+        Intent pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        pictureIntent.setType("image/*");  // 1
+        pictureIntent.addCategory(Intent.CATEGORY_OPENABLE);  // 2
+        String[] mimeTypes = new String[]{"image/jpeg", "image/png"};  // 3
+        pictureIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"), PICK_IMAGE_GALLERY_REQUEST_CODE);  // 4
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_ACTION_PICK_REQUEST_CODE && resultCode == RESULT_OK) {
+            Uri uri = Uri.parse(currentPhotoPath);
+            openCropActivity(uri, uri);
+
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
+            assert data != null;
+            Uri uri = UCrop.getOutput(data);
+            setVehicleImageFromUri(uri);
+
+        } else if (requestCode == PICK_IMAGE_GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            Uri sourceUri = data.getData(); // 1
+            File file = getImageFile(); // 2
+            Uri destinationUri = Uri.fromFile(file);  // 3
+            openCropActivity(sourceUri, destinationUri);  // 4
+
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            Toast.makeText(this, "Error" + UCrop.getError(data), Toast.LENGTH_SHORT).show();
+            Log.d("TAG", "onActivityResult: " + UCrop.getError(data));
+        } else Toast.makeText(this, "Error!!", Toast.LENGTH_SHORT).show();
+    }
+
+
 }
 
 

@@ -4,13 +4,16 @@ import android.annotation.SuppressLint;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.s19mobility.spotbuy.Others.STATUS;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VehiclePost implements Serializable {
     String id;
@@ -258,7 +261,7 @@ public class VehiclePost implements Serializable {
 
     public List<String> ImageListFromJson(String jsonList) {
 
-        Type type = new TypeToken<String[]>() {}.getType();
+        Type type = new TypeToken<List<String>>() {}.getType();
         Gson gson = new Gson();
         List<String>  finalOutputString = gson.fromJson(jsonList, type);
         imageList = finalOutputString;
@@ -305,4 +308,31 @@ public class VehiclePost implements Serializable {
     }
 
 
+    public Map<String, Object> toUpdateMap() {
+        Map<String, Object> vehicle = new HashMap<>();
+        vehicle.put("active",false);
+        vehicle.put("status",String.valueOf(STATUS.PENDING));
+        vehicle.put("brandId",brandId);
+        vehicle.put("categoryId",categoryId);
+        vehicle.put("city",city);
+        vehicle.put("country",country);
+        //vehicle.put("dateTime", Calendar.getInstance().getTime());
+        vehicle.put("description", description);
+        vehicle.put("fuelId", fuelId);
+        vehicle.put("imageList", imageList);
+        vehicle.put("kmsRidden", kmsRidden);
+        vehicle.put("modelId", modelId);
+        vehicle.put("modelYear", modelYear);
+        vehicle.put("numberOfOwner", numberOfOwner);
+        vehicle.put("price", price);
+        vehicle.put("state", state);
+        vehicle.put("transmissionMode", transmissionMode);
+        //vehicle.put("trimId", trimId);
+        vehicle.put("title", title);
+        vehicle.put("fuelType", fuelType);
+
+
+
+        return vehicle;
+    }
 }

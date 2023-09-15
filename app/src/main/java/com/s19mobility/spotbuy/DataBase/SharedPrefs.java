@@ -3,12 +3,21 @@ package com.s19mobility.spotbuy.DataBase;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Date;
+
 public class SharedPrefs {
     public static String sharedPrefName = "spotbuyPrefs";
     Context context;
 
     public SharedPrefs(Context context) {
         this.context = context;
+    }
+
+    public void clearSharedData(){
+        SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        editor.apply();
     }
 
     //Login Preferences
@@ -49,7 +58,8 @@ public class SharedPrefs {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("mobileNo", mobile);
         editor.apply();
-    } //Profile Preferences
+    }
+    //Profile Preferences
 
     public String getSharedUID() {
         SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
@@ -62,15 +72,16 @@ public class SharedPrefs {
         editor.putString("uid", uid);
         editor.apply();
     }
-    public String getSharedID() {
+
+    public String getSharedImage() {
         SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
-        return sp.getString("id", "");
+        return sp.getString("image", "");
     }
 
-    public void setSharedID(String id) {
+    public void setSharedImage(String image) {
         SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString("id", id);
+        editor.putString("image", image);
         editor.apply();
     }
 
@@ -114,5 +125,38 @@ public class SharedPrefs {
         editor.apply();
     }
 
+
+    //City Preferences
+    public String getSharedName() {
+        SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+        return sp.getString("name", "");
+    }
+
+    public void setSharedName(String name) {
+        SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("name", name);
+        editor.apply();
+    }
+
+    public void setLastUpdateDate(Date date){
+
+        SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putLong("LastUpdate", date.getTime());
+        editor.apply();
+
+    }
+
+    public Date getLastUpdateDate(){
+        SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
+        Long time = sp.getLong("LastUpdate", 0);
+
+        if (time==0)
+            return  null;
+
+        return new Date(time);
+
+    }
 
 }

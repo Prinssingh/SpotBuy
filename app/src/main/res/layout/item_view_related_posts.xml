@@ -12,12 +12,24 @@
         android:orientation="vertical"
         android:padding="4dp"
         android:layout_height="match_parent">
-        <ImageView
-            android:id="@+id/vehicleImage"
-            android:layout_width="160dp"
-            android:layout_height="200dp"
-            android:src="@drawable/logo"
-            tools:ignore="ContentDescription" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/vehicleImage"
+                android:layout_width="160dp"
+                android:layout_height="200dp"
+                tools:ignore="ContentDescription" />
+            <ProgressBar
+                android:id="@+id/imageProgressIndicator"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:indeterminateTint="@color/theme_primary"
+                android:layout_centerInParent="true" />
+
+        </RelativeLayout>
         <TextView
             android:id="@+id/price"
             android:layout_width="match_parent"

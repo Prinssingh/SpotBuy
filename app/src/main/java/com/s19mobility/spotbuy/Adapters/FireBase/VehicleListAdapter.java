@@ -2,11 +2,11 @@ package com.s19mobility.spotbuy.Adapters.FireBase;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,18 +27,25 @@ import com.s19mobility.spotbuy.R;
 public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, VehicleListAdapter.ViewHolderData> {
     private final Context mContext;
     private final HomeFragment homeFragment;
+    FirestoreRecyclerOptions<VehiclePost>  options;
 
-    public VehicleListAdapter(@NonNull FirestoreRecyclerOptions options, Context mContext, HomeFragment homeFragment) {
+
+    public VehicleListAdapter(@NonNull FirestoreRecyclerOptions<VehiclePost>  options, Context mContext, HomeFragment homeFragment) {
         super(options);
         this.mContext = mContext;
         this.homeFragment = homeFragment;
+        this.options =options;
+        if(getItemCount()<1)
+            homeFragment.showEmptyIndicator();
+        else
+            homeFragment.hideEmptyIndicator();
 
     }
 
     @Override
     protected void onBindViewHolder(@NonNull ViewHolderData holder, int position, @NonNull VehiclePost model) {
 
-        ((ViewHolderData) holder).bindData(model, position);
+        holder.bindData(model, position);
     }
 
     @NonNull
@@ -49,13 +56,16 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
 
     @Override
     public void onDataChanged() {
-
+        if(getItemCount()<1)
+            homeFragment.showEmptyIndicator();
+        else
+            homeFragment.hideEmptyIndicator();
     }
 
     @Override
-    public void onError(FirebaseFirestoreException e) {
-        Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
-        Log.e("HERE", "onError: ", e);
+    public void onError(@NonNull FirebaseFirestoreException e) {
+        Toast.makeText(mContext, "Firebase Error Vehicle list" +e.getMessage(), Toast.LENGTH_SHORT).show();
+        e.printStackTrace();
     }
 
     public class ViewHolderData extends RecyclerView.ViewHolder {
@@ -64,6 +74,7 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
         TextView brandName;
         Chip price, yearModel, fuelType;
         MaterialButton message;
+        ProgressBar imageEmptyIndicator;
 
 
         public ViewHolderData(@NonNull View itemView, Context context) {
@@ -71,6 +82,7 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
 
             this.context = context;
             image = itemView.findViewById(R.id.vehicleImage);
+            imageEmptyIndicator = itemView.findViewById(R.id.imageEmptyIndicator);
             brandName = itemView.findViewById(R.id.brandName);
 
             price = itemView.findViewById(R.id.price);
@@ -84,21 +96,19 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
         @SuppressLint("SetTextI18n")
         public void bindData(VehiclePost vehicle, int i) {
 
-            new DownloadImage(image).execute(vehicle.getImageList().get(0));
+            new DownloadImage(image,imageEmptyIndicator).execute(vehicle.getImageList().get(0));
             brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
             yearModel.setText("" + vehicle.getModelYear());
             fuelType.setText("" + vehicle.getFuelType());
             //TODO message
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    VehicleListAdapter.this.homeFragment.onItemClickListener(vehicle);
-                }
-            });
+            itemView.setOnClickListener(view -> VehicleListAdapter.this.homeFragment.onItemClickListener(vehicle));
+
+            message.setOnClickListener(view -> homeFragment.sendMessage(vehicle.getSellerId()));
         }
 
     }
+
 
 }

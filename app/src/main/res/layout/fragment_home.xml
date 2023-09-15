@@ -46,6 +46,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginTop="8dp"
+                android:id="@+id/locationCard"
                 android:layout_marginEnd="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
@@ -78,6 +79,16 @@
 
             </androidx.cardview.widget.CardView>
 
+            <ImageView
+                android:id="@+id/search"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/locationCard"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/search_vehicles" />
+
 
         </RelativeLayout>
 
@@ -106,20 +117,24 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/vehiclesList"
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent"
-                android:scrollbars="none"
-                android:layout_margin="8dp"
-                android:overScrollMode="never" />
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:overScrollMode="never"
+                android:scrollbars="none" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border_8"
                 android:padding="8dp"
-
+                android:visibility="gone"
                 android:id="@+id/emptyIndicator"
                 android:layout_centerInParent="true">
 

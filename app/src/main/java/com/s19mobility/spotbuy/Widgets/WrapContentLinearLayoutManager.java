@@ -1,4 +1,4 @@
-package com.s19mobility.spotbuy.Others;
+package com.s19mobility.spotbuy.Widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;

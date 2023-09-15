@@ -58,44 +58,50 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:ignore="RtlSymmetry" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="120dp">
+                android:layout_height="wrap_content">
 
+                <LinearLayout
 
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/vehicleImages"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_centerInParent="true"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:background="@drawable/border_4"
-                    android:padding="4dp" />
-
-                <ImageView
-                    android:id="@+id/sampleImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
                     android:layout_centerInParent="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="16dp"
                     android:background="@drawable/border_4"
-                    android:padding="4dp"
-                    android:src="@drawable/upload_default" />
+                    android:orientation="vertical"
+                    android:padding="4dp">
+
+                    <ImageView
+                        android:id="@+id/TestImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:src="@drawable/upload_default" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/croppedImageList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                         />
+
+                    <Button
+                        android:id="@+id/addImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/add_image" />
+                </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/imageProgressIndicator"
-                    style="?android:attr/progressBarStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
+                    android:layout_centerInParent="true"
                     android:indeterminateTint="@color/theme_primary"
-                    android:layout_centerInParent="true" />
-
-
+                    android:visibility="gone" />
             </RelativeLayout>
 
 
@@ -113,6 +119,8 @@
                     android:id="@+id/vehicleCategoryList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
+
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -133,6 +141,7 @@
                     android:id="@+id/vehicleBrandList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -153,6 +162,7 @@
                     android:id="@+id/vehicleBrandModelList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -173,6 +183,7 @@
                     android:id="@+id/fuelTypeList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -184,6 +195,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
@@ -193,6 +205,7 @@
                     android:id="@+id/yearModelList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     tools:ignore="LabelFor" />
 
@@ -212,6 +225,7 @@
                     android:id="@+id/ownerNumberList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     tools:ignore="LabelFor" />
 
@@ -231,6 +245,7 @@
                     android:id="@+id/transmissionModeList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -248,11 +263,11 @@
                 android:hint="KMS Ridden">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:id="@+id/KMSRidden"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:layout_height="wrap_content" />
+                    android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -266,10 +281,10 @@
                 android:hint="Description .... 150 words">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:id="@+id/description"
                     android:lines="3"
                     android:maxLength="150" />
 
@@ -282,14 +297,14 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:hint="Price">
+                android:hint="@string/price">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:id="@+id/price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:layout_height="wrap_content" />
+                    android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -307,6 +322,7 @@
                     android:id="@+id/countryList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -327,6 +343,7 @@
                     android:id="@+id/stateList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />
@@ -347,6 +364,7 @@
                     android:id="@+id/cityList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:freezesText="false"
                     android:inputType="none"
                     android:singleLine="true"
                     tools:ignore="LabelFor" />

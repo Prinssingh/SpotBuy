@@ -27,9 +27,8 @@ import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.s19mobility.spotbuy.Activity.LoginActivity;
 import com.s19mobility.spotbuy.DataBase.SharedPrefs;
-import com.s19mobility.spotbuy.Others.LoadingDialog;
+import com.s19mobility.spotbuy.Dialogs.LoadingDialog;
 import com.s19mobility.spotbuy.Others.NetworkUtil;
 import com.s19mobility.spotbuy.R;
 
@@ -239,9 +238,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             if (e instanceof FirebaseAuthInvalidCredentialsException) {
                 // Invalid request
             } else if (e instanceof FirebaseTooManyRequestsException) {
+                Toast.makeText(requireContext(), "Too Many Requests...Please wait some time", Toast.LENGTH_SHORT).show();
                 // The SMS quota  for the project has been exceeded
             } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
                 // reCAPTCHA verification attempted with null Activity
+                Toast.makeText(requireContext(), "Firebase Auth Missing Activity For Recaptcha Exception", Toast.LENGTH_SHORT).show();
             }
 
             // Show a message and update the UI

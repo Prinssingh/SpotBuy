@@ -1,10 +1,17 @@
 package com.s19mobility.spotbuy.Models;
 
+import static com.s19mobility.spotbuy.Others.Constants.bitmapToByte;
+import static com.s19mobility.spotbuy.Others.Constants.byteToBitmap;
+
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.google.common.reflect.TypeToken;
+import com.google.firebase.firestore.Exclude;
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -31,7 +38,6 @@ public class User implements Serializable {
     String password;
     String role;
     int totalPost;
-    String uid;
     List<String> followers = new ArrayList<>();
     List<String> following=  new ArrayList<>();
 
@@ -168,15 +174,6 @@ public class User implements Serializable {
         this.totalPost = totalPost;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-
 
     public int getFollowerCount() {
         return followers.size();
@@ -244,6 +241,26 @@ public class User implements Serializable {
          temp.put("image",image);
 
         return  temp;
+    }
+
+    @Exclude
+    private byte[] imageBmp;
+
+    public byte[] getImageBmp() {
+        return imageBmp;
+    }
+
+    public void setImageBmp(byte[] imageBmp) {
+        this.imageBmp = imageBmp;
+    }
+
+    public void setImageBitmap(Bitmap bitmap)
+    {
+        this.imageBmp=bitmapToByte(bitmap);
+    }
+
+    public Bitmap getImageBitmap(){
+        return byteToBitmap(this.imageBmp);
     }
 
 }
