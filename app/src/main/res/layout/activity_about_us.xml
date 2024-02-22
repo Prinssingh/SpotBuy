@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.TermsConditionsActivity"
+
+    tools:ignore="HardcodedText">
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/theme_primary"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/baloo_normal"
+            android:text="@string/about_us"
+            android:textColor="@color/white"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        app:layout_constraintVertical_bias="0.019"
+        tools:layout_editor_absoluteX="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo_normal"
+                android:gravity="center"
+                android:text="spotbuy"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo_normal"
+                android:lineSpacingMultiplier=".8"
+                android:text="At Spotbuy, our mission is simple yet profound: to transform the way people buy and sell vehicles. We're not just another app in the sea of digital marketplaces; we're a movement, a platform, and a community that's redefining the automotive industry one transaction at a time."
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/baloo_normal"
+                android:text="Our Vision:"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo_normal"
+                android:lineSpacingMultiplier=".8"
+                android:text="Our vision is to create a world where vehicle transactions are cost-effective, transparent, and, above all, user-centric. We believe that everyone deserves to find their dream vehicle or sell their existing one without breaking the bank or enduring unnecessary stress. We envision a future where every user, whether they're a seasoned car enthusiast or a first-time buyer, can confidently navigate the process of buying and selling vehicles."
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/baloo_normal"
+                android:text="Why Choose Spotbuy?"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo_normal"
+                android:lineSpacingMultiplier=".8"
+
+                android:text=" Cosklt-Effective Solutions: We're committed to saving you money. Spotbuy was born out of the idea that you shouldn't have to pay exorbitant fees or hidden costs when buying or selling a vehicle. We offer an affordable platform where you get to keep more of your hard-earned money.\n\n
+Diverse Vehicle Selection: From eco-friendly commuters to powerful sports cars, classic collectibles to family-friendly SUVs, we've assembled an extensive collection of vehicles to suit every taste and need.\n\n
+
+User-Friendly Experience: We prioritize your comfort and convenience. Our user-friendly interface ensures that you can easily navigate our platform, whether you're a tech-savvy individual or new to online vehicle transactions.\n\n
+
+Advanced Search and Filters: We empower you to find the vehicle of your dreams swiftly. Our advanced search and filtering options help you narrow down your choices based on your unique preferences.\n\n
+
+Secure Transactions: Safety is paramount. We implement robust security measures to safeguard your personal and financial information, ensuring every transaction is secure and worry-free.\n\n
+
+Transparent Listings: Sellers can create comprehensive listings, providing potential buyers with all the essential details needed to make informed decisions.\n\n
+
+Real-Time Notifications: Stay updated with real-time notifications, ensuring you never miss out on new opportunities or essential messages.\n\n
+
+In-App Communication: Connect directly with buyers or sellers through our secure in-app messaging system. It's a hassle-free way to negotiate, ask questions, and arrange viewings or test drives.\n\n
+"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/baloo_normal"
+                android:text="Join Our Community:"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloo_normal"
+                android:layout_marginBottom="24dp"
+                android:lineSpacingMultiplier=".8"
+                android:text="At Spotbuy, we don't just offer a marketplace; we offer an automotive community. Our users share a common passion for vehicles and a commitment to a future where buying and selling vehicles is straightforward and affordable. Join our growing community of smart buyers and sellers today and become part of the revolution in vehicle transactions.\n\n\n
+Thank you for choosing Spotbuy. Together, we're changing the game, one vehicle at a time. We look forward to helping you find your dream vehicle or get the best value for your current one. Download Spotbuy and become a part of a brighter, more cost-effective future in the automotive world.
+"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

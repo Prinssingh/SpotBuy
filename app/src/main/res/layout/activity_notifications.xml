@@ -12,6 +12,7 @@
         android:layout_height="56dp"
         android:layout_alignParentTop="true"
         android:orientation="horizontal"
+        android:background="@color/theme_primary"
         tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -20,7 +21,8 @@
             android:layout_height="36dp"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_back"
+            app:tint="@color/white" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,9 +31,9 @@
             android:layout_marginStart="8dp"
             android:fontFamily="@font/baloo_normal"
             android:text="@string/notifications"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <LinearLayout

@@ -48,11 +48,11 @@
             android:drawablePadding="12dp"
             android:ems="10"
             android:hint="Phone No."
-            android:inputType="phone"
+            android:inputType="number"
             android:paddingStart="12dp"
+            android:maxLength="10"
             android:paddingEnd="12dp"
-            tools:ignore="HardcodedText"
-            android:autofillHints="phone" />
+            tools:ignore="HardcodedText" />
 
         <LinearLayout
             android:id="@+id/linearBG"
@@ -100,12 +100,7 @@
             app:cornerRadius="12dp" />
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/otp_bg" />
+
 
 
 </RelativeLayout>

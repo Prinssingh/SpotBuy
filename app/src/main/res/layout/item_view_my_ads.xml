@@ -44,7 +44,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
             android:fontFamily="@font/baloo_normal"
-            android:text="Band Name"
+            android:text=""
             android:textColor="@color/black"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:layout_marginTop="-8dp"
             android:layout_marginEnd="4dp"
             android:fontFamily="@font/baloo_normal"
-            android:text="R-100000"
+            android:text=""
             android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -72,7 +72,7 @@
             android:layout_marginTop="-4dp"
             android:layout_marginEnd="4dp"
             android:fontFamily="@font/baloo_normal"
-            android:text="2010 model"
+            android:text=""
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/chip1"
                 android:fontFamily="@font/baloo_normal"
-                android:text="Owners"
+                android:text=""
                 android:textSize="8sp"
                 tools:ignore="SmallSp" />
 
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/chip2"
                 android:fontFamily="@font/baloo_normal"
-                android:text="500000 KM"
+                android:text=""
                 android:textSize="8sp"
                 tools:ignore="SmallSp" />
 
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/chip3"
                 android:fontFamily="@font/baloo_normal"
-                android:text="CNG and Hybrid"
+                android:text=""
                 android:textSize="8sp"
                 tools:ignore="SmallSp" />
 
@@ -130,7 +130,7 @@
             android:layout_marginTop="-4dp"
             android:layout_marginEnd="4dp"
             android:fontFamily="@font/baloo_normal"
-            android:text="Description"
+            android:text="@string/description"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -145,7 +145,6 @@
             android:layout_marginEnd="4dp"
             android:fontFamily="@font/baloo_normal"
             android:lineSpacingExtra="-6dp"
-            android:text="Description body"
             android:textColor="@color/black"
             android:textSize="10sp"
             tools:ignore="SmallSp" />
