@@ -2,8 +2,11 @@ package com.s19.spotbuy.Models;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import androidx.annotation.Keep;
+
+import java.io.ByteArrayOutputStream;
 
 @Keep
 public class ImageModel {
@@ -34,10 +37,10 @@ public class ImageModel {
     }
 
     public void setImageData(byte[] imageData) {
-        if(imageData ==null)
+        if (imageData == null)
             return;
         this.imageData = imageData;
-        this.imageBitmap= BitmapFactory.decodeByteArray(imageData , 0, imageData.length);
+        this.imageBitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
     }
 
     public Bitmap getImageBitmap() {
@@ -46,5 +49,10 @@ public class ImageModel {
 
     public void setImageBitmap(Bitmap imageBitmap) {
         this.imageBitmap = imageBitmap;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        this.imageData = stream.toByteArray();
+        Log.d("TAG", "setImageBitmap: "+imageData);
+
     }
 }

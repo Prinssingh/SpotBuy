@@ -58,11 +58,11 @@ public class ScrollingImageAdapter extends PagerAdapter {
                imageView.setImageBitmap(imageModel.getImageBitmap());
            }
            else{
-               new DownloadImage(imageView,loadingIndicator).execute(images.get(position));
+               new DownloadImage(context,imageView,loadingIndicator).execute(images.get(position));
            }
        }
        catch (Exception e){
-           new DownloadImage(imageView,loadingIndicator).execute(images.get(position));
+           new DownloadImage(context,imageView,loadingIndicator).execute(images.get(position));
        }
 
         ViewPager viewPager=(ViewPager) container;

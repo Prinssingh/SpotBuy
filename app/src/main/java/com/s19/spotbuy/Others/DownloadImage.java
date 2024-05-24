@@ -1,46 +1,82 @@
 package com.s19.spotbuy.Others;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import java.io.InputStream;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.util.ByteArrayBuffer;
+import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Models.ImageModel;
 
-public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+public class DownloadImage extends AsyncTask<String, Void, byte[]> {
     @SuppressLint("StaticFieldLeak")
-    ImageView bmImage;
+    ImageView imageView;
     @SuppressLint("StaticFieldLeak")
     ProgressBar loadingIndicator;
+    @SuppressLint("StaticFieldLeak")
+    Context context;
+    String url;
 
-    public DownloadImage(ImageView bmImage, ProgressBar loadingIndicator) {
-        this.bmImage = bmImage;
-        this.loadingIndicator= loadingIndicator;
+    public DownloadImage(Context context, ImageView imageView, ProgressBar loadingIndicator) {
+        this.imageView = imageView;
+        this.loadingIndicator = loadingIndicator;
+        this.context=context;
+
         loadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    protected Bitmap doInBackground(String... urls) {
-        String urldisplay = urls[0];
-        Bitmap mIcon11 = null;
+    protected  byte[]  doInBackground(String... urls) {
+        url = urls[0];
+
         try {
-            InputStream in = new java.net.URL(urldisplay).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
+            URL imageUrl = new URL(url);
+            URLConnection ucon = imageUrl.openConnection();
+
+            InputStream is = ucon.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+
+            ByteArrayBuffer baf = new ByteArrayBuffer(500);
+            int current = 0;
+            while ((current = bis.read()) != -1) {
+                baf.append((byte) current);
+            }
+
+            return baf.toByteArray();
+        } catch (Exception e) {
+            Log.d("ImageManager", "Error: " + e.toString());
         }
-        catch (Exception e) {
-            Log.e("Error Image", e.getMessage());
-            e.printStackTrace();
-        }
-        return mIcon11;
+        return null;
     }
 
-    protected void onPostExecute(Bitmap result) {
+    protected void onPostExecute(byte[] imageBytes) {
 
-        if(result!=null)
-            bmImage.setImageBitmap(result);
+        if (imageBytes == null)
+            return;
+
+        ImageModel imageModel = new ImageModel();
+        imageModel.setImageData(imageBytes);
+        imageModel.setLink(url);
+        imageView.setImageBitmap(imageModel.getImageBitmap());
         loadingIndicator.setVisibility(View.GONE);
+        try {
+            new ImageManager(context).insert(imageModel);
+        } catch (Exception e) {
+            e.printStackTrace();
+            new ImageManager(context).update(imageModel);
+        }
     }
+
+
+
+
+
 }

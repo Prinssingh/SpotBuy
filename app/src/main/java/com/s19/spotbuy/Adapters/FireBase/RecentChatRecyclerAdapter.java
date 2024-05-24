@@ -16,9 +16,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.s19.spotbuy.Activity.ChatActivity;
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Fragments.main.ChatsFragment;
 import com.s19.spotbuy.Models.Chat;
 import com.s19.spotbuy.Models.ChatRoomModel;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.Others.Utils;
@@ -33,7 +35,7 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatRoom
         this.context = context;
         this.chatsFragment = chatsFragment;
 
-        if (getItemCount()<1)
+        if (getItemCount() < 1)
             chatsFragment.showEmptyIndicator();
         else
             chatsFragment.hideEmptyIndicator();
@@ -43,7 +45,7 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatRoom
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-        if (getItemCount()<1)
+        if (getItemCount() < 1)
             chatsFragment.showEmptyIndicator();
         else
             chatsFragment.hideEmptyIndicator();
@@ -58,8 +60,12 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatRoom
                         boolean lastMessageSentByMe = model.getLastMessageSenderId().equals(Utils.currentUserId());
 
                         User otherUserModel = task.getResult().toObject(User.class);
-
-                        new DownloadImage(holder.userImage, holder.imageProgressIndicator).execute(otherUserModel.getImage());
+                        ImageModel imageModel = new ImageManager(context).getImageByLink(otherUserModel.getImage());
+                        if (imageModel != null)
+                            holder.userImage.setImageBitmap(imageModel.getImageBitmap());
+                        else
+                            new DownloadImage(context, holder.userImage, holder.imageProgressIndicator).execute(otherUserModel.getImage());
+                        // Older verson --new DownloadImage(holder.userImage, holder.imageProgressIndicator).execute(otherUserModel.getImage());
 
                         holder.userName.setText(otherUserModel.getName());
                         if (lastMessageSentByMe)
@@ -87,7 +93,7 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatRoom
         return new ViewHolderData(view);
     }
 
-    public static class ViewHolderData extends RecyclerView.ViewHolder {
+    public class ViewHolderData extends RecyclerView.ViewHolder {
 
         ShapeableImageView userImage;
         ProgressBar imageProgressIndicator;
@@ -112,7 +118,12 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatRoom
 
         @SuppressLint({"SetTextI18n", "ResourceAsColor"})
         public void bindData(Chat chat, int i) {
-            new DownloadImage(userImage, imageProgressIndicator).execute(chat.getImage());
+            ImageModel imageModel = new ImageManager(context).getImageByLink(chat.getImage());
+            if (imageModel != null)
+                userImage.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(context, userImage, imageProgressIndicator).execute(chat.getImage());
+            //Older version --new DownloadImage(userImage, imageProgressIndicator).execute(chat.getImage());
             userName.setText("" + chat.getName());
 
             lastMessage.setText("" + chat.getLastMessage());

@@ -59,9 +59,10 @@ import com.s19.spotbuy.Activity.HomeActivity;
 import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
+import com.s19.spotbuy.Dialogs.LoadingDialog;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Others.DownloadImage;
-import com.s19.spotbuy.Dialogs.LoadingDialog;
 import com.s19.spotbuy.Others.NetworkUtil;
 import com.s19.spotbuy.Others.OnImageUploadListener;
 import com.s19.spotbuy.Others.ReadBasicFireBaseData;
@@ -166,7 +167,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             try {
                 profileUpdate();
             } catch (Exception e) {
-                Toast.makeText(activity, "Error :"+e, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Error :" + e, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -182,11 +183,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             userName.setError("Empty");
         }
         if (userEmail.getText().toString().length() != 0 && !isValidEmail(userEmail.getText().toString().trim())) {
-           isValid = false;
+            isValid = false;
             userEmail.setError("Invalid");
         }
 
-        if (userAltMobile.getText().toString().length() != 0  && userAltMobile.getText().toString().length() != 10) {
+        if (userAltMobile.getText().toString().length() != 0 && userAltMobile.getText().toString().length() != 10) {
             isValid = false;
             userAltMobile.setError("Invalid");
         }
@@ -209,8 +210,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         user.setAddress(userAddress.getText().toString().trim());
 
 
-
-        if (user.getDateTime()==null ) {
+        if (user.getDateTime() == null) {
             //set default Value
             user.setActive(true);
             user.setAvailablePost(DEFAULT_POST_COUNT);
@@ -272,7 +272,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                                     if (user.getImage() != null || user.getImage() != "")
                                         sharedPrefs.setSharedImage(user.getImage());
                                     Toast.makeText(activity, "Update Success!", Toast.LENGTH_LONG).show();
-                                   //Updating local db
+                                    //Updating local db
                                     userManager.update(user);
                                     new SaveImageByteToDatabase(requireActivity()).execute(user.getImage());
 //                                    try{
@@ -308,9 +308,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                             });
 
 
-            }
-
-            else {
+            } else {
                 Toast.makeText(activity, "Invalid Data", Toast.LENGTH_SHORT).show();
                 loadingDialog.dismiss();
             }
@@ -323,64 +321,67 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     }
 
     private void setFirebaseData() {
-      user =userManager.getUserById(sharedPrefs.getSharedUID());
-      if(user.getId()!=null){
+        user = userManager.getUserById(sharedPrefs.getSharedUID());
+        if (user.getId() != null) {
 
-          sharedPrefs.setSharedName(user.getName());
-          if (user.getImage() != null || user.getImage() != "") {
-              sharedPrefs.setSharedImage(user.getImage());
+            sharedPrefs.setSharedName(user.getName());
+            if (user.getImage() != null || user.getImage() != "") {
+                sharedPrefs.setSharedImage(user.getImage());
 
-              Bitmap temp =imageManager.getImageByLink(user.getImage()).getImageBitmap();
-              if(temp!=null)
-              {
-                  userImage.setImageBitmap(temp);
-              }
-              else{
-                  new DownloadImage(userImage, imageProgressIndicator).execute(user.getImage());
-              }
-          }
-          userName.setText(user.getName());
-          userAltMobile.setText(user.getAlt_mobile());
-          userEmail.setText(user.getEmail());
-          userAddress.setText(user.getAddress());
-          userMobileNo.setText(user.getMobile());
-          gender.setText(user.getGender(), false);
+                Bitmap temp = imageManager.getImageByLink(user.getImage()).getImageBitmap();
+                if (temp != null) {
+                    userImage.setImageBitmap(temp);
+                } else {
+                    new DownloadImage(activity, userImage, imageProgressIndicator).execute(user.getImage());
+                }
+            }
+            userName.setText(user.getName());
+            userAltMobile.setText(user.getAlt_mobile());
+            userEmail.setText(user.getEmail());
+            userAddress.setText(user.getAddress());
+            userMobileNo.setText(user.getMobile());
+            gender.setText(user.getGender(), false);
 
-          oldImage =user.getImage();
-      }
-      else{
-          loadingDialog.show();
-          db.collection(UserCollection)
-                  .document(sharedPrefs.getSharedUID())
-                  .get()
-                  .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                      @Override
-                      public void onSuccess(DocumentSnapshot documentSnapshot) {
-                          if (documentSnapshot != null) {
-                              User temp = documentSnapshot.toObject(User.class);
-                              if (temp == null)
-                                  return;
+            oldImage = user.getImage();
+        } else {
+            loadingDialog.show();
+            db.collection(UserCollection)
+                    .document(sharedPrefs.getSharedUID())
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot != null) {
+                                User temp = documentSnapshot.toObject(User.class);
+                                if (temp == null)
+                                    return;
 
-                              user = temp;
-                              sharedPrefs.setSharedName(user.getName());
-                              if (user.getImage() != null || user.getImage() != "") {
-                                  sharedPrefs.setSharedImage(user.getImage());
-                                  new DownloadImage(userImage, imageProgressIndicator).execute(user.getImage());
-                              }
-                              userName.setText(user.getName());
-                              userAltMobile.setText(user.getAlt_mobile());
-                              userEmail.setText(user.getEmail());
-                              userAddress.setText(user.getAddress());
-                              userMobileNo.setText(user.getMobile());
-                              gender.setText(user.getGender(), false);
+                                user = temp;
+                                sharedPrefs.setSharedName(user.getName());
+                                if (user.getImage() != null || user.getImage() != "") {
+                                    sharedPrefs.setSharedImage(user.getImage());
+                                    ImageModel imageModel = new ImageManager(activity).getImageByLink(user.getImage());
+                                    if (imageModel != null || imageModel.getImageBitmap() != null)
+                                        userImage.setImageBitmap(imageModel.getImageBitmap());
+                                    else
+                                        new DownloadImage(activity, userImage, imageProgressIndicator).execute(user.getImage());
+
+                                    //Older Version --new DownloadImage(userImage, imageProgressIndicator).execute(user.getImage());
+                                }
+                                userName.setText(user.getName());
+                                userAltMobile.setText(user.getAlt_mobile());
+                                userEmail.setText(user.getEmail());
+                                userAddress.setText(user.getAddress());
+                                userMobileNo.setText(user.getMobile());
+                                gender.setText(user.getGender(), false);
 
 
-                          }
+                            }
 
-                      }
-                  })
-                  .addOnCompleteListener(task -> loadingDialog.dismiss());
-      }
+                        }
+                    })
+                    .addOnCompleteListener(task -> loadingDialog.dismiss());
+        }
 
     }
 
@@ -459,12 +460,12 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     }
 
 
-    private void deleteImageFromLocalStorage(Uri imageUri){
+    private void deleteImageFromLocalStorage(Uri imageUri) {
         File fdelete = new File(getFilePath(imageUri));
 
-        if (fdelete!=null && fdelete.exists()) {
+        if (fdelete != null && fdelete.exists()) {
             if (fdelete.delete()) {
-                System.out.println("file Deleted :" );
+                System.out.println("file Deleted :");
             } else {
                 System.out.println("file not Deleted :");
             }
@@ -644,9 +645,9 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     }
 
 
-    private void deleteImageFromFirebaseAndLocalDB(){
-        if(!Objects.equals(oldImage, user.getImage()))
-        {            imageManager.deleteByLink(oldImage);
+    private void deleteImageFromFirebaseAndLocalDB() {
+        if (!Objects.equals(oldImage, user.getImage())) {
+            imageManager.deleteByLink(oldImage);
             FirebaseStorage.getInstance().getReferenceFromUrl(oldImage).delete();
 
         }

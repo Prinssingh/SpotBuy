@@ -57,30 +57,26 @@ public class HomeActivity extends MainActivity {
                     @Override
                     public void onItemSelected(int i) {
                         Fragment fragment;
-                        switch (i) {
-                            case R.id.bottom_nav_home:
-                                fragment = HomeFragment.newInstance();
-                                break;
-                            case R.id.bottom_nav_messages:
-                                fragment = ChatsFragment.newInstance();
-                                break;
-                            case R.id.bottom_nav_ads:
-                                fragment = AdsFragment.newInstance(true);
-                                break;
-
-                            case R.id.bottom_nav_sell:
-                                fragment = SellFragment.newInstance();
-                                break;
-
-                            default:
-                                fragment = HomeFragment.newInstance();
-                                break;
+                        if (i == R.id.bottom_nav_home) {
+                            fragment = HomeFragment.newInstance();
+                        } else if (i == R.id.bottom_nav_messages) {
+                            fragment = ChatsFragment.newInstance();
+                        } else if (i == R.id.bottom_nav_ads) {
+                            fragment = AdsFragment.newInstance(true);
+                        } else if (i == R.id.bottom_nav_sell) {
+                            fragment = SellFragment.newInstance();
+                        } else {
+                            fragment = HomeFragment.newInstance();
                         }
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.fragment_container,
                                         fragment).commit();
                     }
                 });
+    }
+
+    public void setSelectedChip(int i){
+        chipNavigationBar.setItemSelected(i,false);
     }
 
     public void checkRunTimePermission() {

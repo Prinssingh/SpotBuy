@@ -21,7 +21,7 @@ public class ImageManager {
     //Create Table Query
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
             + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + LINK + " TEXT NOT NULL, "
+            + LINK + " TEXT NOT NULL UNIQUE, "
             + BLOB_DATA + " BLOB "
             + ");";
 
@@ -62,8 +62,9 @@ public class ImageManager {
         ContentValues contentValues = new ContentValues();
         contentValues.put(LINK, image.getLink());
         contentValues.put(BLOB_DATA, image.getImageData());
-        dbw.insert(TABLE_NAME, null, contentValues);
 
+        dbw.insert(TABLE_NAME, null, contentValues);
+        Log.d("TAG", "insert:IMG "+image.getLink() + "image data" +image.getImageBitmap());
 
     }
 
@@ -81,8 +82,9 @@ public class ImageManager {
     public void delete(ImageModel image) {
         dbw.delete(TABLE_NAME, LINK + "=" + image.getLink(), null);
     }
+
     public void deleteByLink(String link) {
-        dbw.delete(TABLE_NAME, LINK + "=" +link, null);
+        dbw.delete(TABLE_NAME, LINK + "=" + link, null);
     }
 
     @SuppressLint("Range")
@@ -95,11 +97,10 @@ public class ImageManager {
             imageModel.setImageData(cursor.getBlob(cursor.getColumnIndex(BLOB_DATA)));
             imageModel.setLink(cursor.getString(cursor.getColumnIndex(LINK)));
             imageModel.setId(cursor.getLong(cursor.getColumnIndex(_ID)));
-
+            return imageModel;
         }
+        return null;
 
-
-        return imageModel;
 
     }
 

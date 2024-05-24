@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,8 +16,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Fragments.main.HomeFragment;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
@@ -27,15 +29,15 @@ import com.s19.spotbuy.R;
 public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, VehicleListAdapter.ViewHolderData> {
     private final Context mContext;
     private final HomeFragment homeFragment;
-    FirestoreRecyclerOptions<VehiclePost>  options;
+    FirestoreRecyclerOptions<VehiclePost> options;
 
 
-    public VehicleListAdapter(@NonNull FirestoreRecyclerOptions<VehiclePost>  options, Context mContext, HomeFragment homeFragment) {
+    public VehicleListAdapter(@NonNull FirestoreRecyclerOptions<VehiclePost> options, Context mContext, HomeFragment homeFragment) {
         super(options);
         this.mContext = mContext;
         this.homeFragment = homeFragment;
-        this.options =options;
-        if(getItemCount()<1)
+        this.options = options;
+        if (getItemCount() < 1)
             homeFragment.showEmptyIndicator();
         else
             homeFragment.hideEmptyIndicator();
@@ -56,7 +58,7 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
 
     @Override
     public void onDataChanged() {
-        if(getItemCount()<1)
+        if (getItemCount() < 1)
             homeFragment.showEmptyIndicator();
         else
             homeFragment.hideEmptyIndicator();
@@ -64,13 +66,13 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
 
     @Override
     public void onError(@NonNull FirebaseFirestoreException e) {
-        Toast.makeText(mContext, "Firebase Error Vehicle list" +e.getMessage(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mContext, "Firebase Error Vehicle list" +e.getMessage(), Toast.LENGTH_SHORT).show();
         e.printStackTrace();
     }
 
     public class ViewHolderData extends RecyclerView.ViewHolder {
         Context context;
-        ImageView image;
+        ShapeableImageView image;
         TextView brandName;
         Chip price, yearModel, fuelType;
         MaterialButton message;
@@ -95,8 +97,14 @@ public class VehicleListAdapter extends FirestoreRecyclerAdapter<VehiclePost, Ve
 
         @SuppressLint("SetTextI18n")
         public void bindData(VehiclePost vehicle, int i) {
+            String url = vehicle.getImageList().get(0);
 
-            new DownloadImage(image,imageEmptyIndicator).execute(vehicle.getImageList().get(0));
+            ImageModel imageModel = new ImageManager(mContext).getImageByLink(url);
+            if (imageModel != null && imageModel.getImageBitmap()!=null)
+                image.setImageBitmap(imageModel.getImageBitmap());
+            else new DownloadImage(mContext, image, imageEmptyIndicator).execute(url);
+
+            //Old Version --new DownloadImage(image,imageEmptyIndicator).execute(vehicle.getImageList().get(0));
             brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
             yearModel.setText("" + vehicle.getModelYear());

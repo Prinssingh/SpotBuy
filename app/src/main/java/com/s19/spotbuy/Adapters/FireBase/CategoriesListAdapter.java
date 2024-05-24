@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Fragments.main.HomeFragment;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.VehicleCategory;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
@@ -74,7 +76,13 @@ public class CategoriesListAdapter extends FirestoreRecyclerAdapter<VehicleCateg
 
         @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
         public void bindData(VehicleCategory category, int i) {
-            new DownloadImage(image,imageProgressIndicator).execute(category.getImage());
+
+            ImageModel imageModel = new ImageManager(context).getImageByLink(category.getImage());
+            if(imageModel!=null)
+                image.setImageBitmap(imageModel.getImageBitmap());
+            else  new DownloadImage(context,image,imageProgressIndicator).execute(category.getImage());
+            //Older version -- new DownloadImage(image,imageProgressIndicator).execute(category.getImage());
+
             title.setText(category.getName());
             itemView.setOnClickListener(view -> CategoriesListAdapter.this.homeFragment.onCategoryClickListener(category));
 

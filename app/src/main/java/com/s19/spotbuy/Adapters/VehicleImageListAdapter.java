@@ -11,16 +11,18 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Dialogs.ShowImageDialog;
 import com.s19.spotbuy.MainActivity;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
 
 import java.util.List;
 
-public class VehicleImageListAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class VehicleImageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final  List<String> imageList;
+    private final List<String> imageList;
     private final MainActivity mainActivity;
     private final Context mContext;
 
@@ -51,10 +53,8 @@ public class VehicleImageListAdapter  extends RecyclerView.Adapter<RecyclerView.
 
     public class ViewHolderData extends RecyclerView.ViewHolder {
         Context context;
-        ImageView image_view,close;
+        ImageView image_view, close;
         ProgressBar loadingIndicator;
-
-
 
 
         public ViewHolderData(@NonNull View itemView, Context context) {
@@ -71,17 +71,24 @@ public class VehicleImageListAdapter  extends RecyclerView.Adapter<RecyclerView.
         @SuppressLint("SetTextI18n")
         public void bindData(String imageUrl, int i) {
             //Binding here
-            new DownloadImage(image_view,loadingIndicator).execute(imageUrl);
+            ImageModel imageModel = new ImageManager(context).getImageByLink(imageUrl);
+            if (imageModel != null || imageModel.getImageBitmap() != null)
+                image_view.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(context, image_view, loadingIndicator).execute(imageUrl);
+
+            //Older Version --new DownloadImage(image_view,loadingIndicator).execute(imageUrl);
+
             close.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mainActivity.deleteImage(imageUrl,i);
+                    mainActivity.deleteImage(imageUrl, i);
                 }
             });
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new ShowImageDialog(mainActivity,imageUrl);
+                    new ShowImageDialog(mainActivity, imageUrl);
                 }
             });
 

@@ -31,8 +31,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Adapters.FireBase.SellersAdsListAdapter;
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.DownloadImage;
@@ -80,8 +82,15 @@ public class SellerProfileActivity extends AppCompatActivity implements View.OnC
 
         sellerImage = findViewById(R.id.sellerImage);
         imageProgressIndicator = findViewById(R.id.imageProgressIndicator);
-        if (seller.getImage() != null)
-            new DownloadImage(sellerImage, imageProgressIndicator).execute(seller.getImage());
+        if (seller.getImage() != null) {
+            ImageModel imageModel = new ImageManager(SellerProfileActivity.this).getImageByLink(seller.getImage());
+            if (imageModel != null || imageModel.getImageBitmap() != null)
+                sellerImage.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(SellerProfileActivity.this, sellerImage, imageProgressIndicator).execute(seller.getImage());
+
+        }
+
 
         username = findViewById(R.id.username);
         username.setText(seller.getName());

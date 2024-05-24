@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.Widgets.ZoomableImageView;
 import com.s19.spotbuy.R;
@@ -28,7 +30,12 @@ public class ShowImageDialog {
         close =dialogView.findViewById(R.id.close);
         loadingIndicator =dialogView.findViewById(R.id.loadingIndicator);
 
-        new DownloadImage(vehicleimage,loadingIndicator).execute(imageUrl);
+        ImageModel imageModel =new ImageManager(activity).getImageByLink(imageUrl);
+        if(imageModel!=null || imageModel.getImageBitmap()!=null)
+            vehicleimage.setImageBitmap(imageModel.getImageBitmap());
+        else
+            new DownloadImage(activity,vehicleimage, loadingIndicator).execute(imageUrl);
+        //Older Version --new DownloadImage(vehicleimage,loadingIndicator).execute(imageUrl);
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

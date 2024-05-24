@@ -736,8 +736,8 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     private void openCropActivity(Uri sourceUri, Uri destinationUri) {
         UCrop.Options options = new UCrop.Options();
         UCrop.of(sourceUri, destinationUri)
-                .withMaxResultSize(1050, 825)
-                .withAspectRatio(12f, 8f)
+                .withMaxResultSize(1050, 850)
+                .withAspectRatio(4f, 3f)
                 .withOptions(options)
                 .start(this);
     }

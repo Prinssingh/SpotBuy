@@ -33,6 +33,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Adapters.FireBase.RelatedPostListAdapter;
 import com.s19.spotbuy.Adapters.ScrollingImageAdapter;
+import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.DownloadImage;
@@ -141,7 +143,15 @@ public class VehicleDetailsActivity extends AppCompatActivity implements View.On
                             sellerName.setText(seller.getName());
 
                             if (seller.getImage()!=null)
-                                new DownloadImage(sellerImage,loadingIndicator).execute(seller.getImage());
+                            {
+                                ImageModel imageModel =new ImageManager(VehicleDetailsActivity.this).getImageByLink(seller.getImage());
+                                if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                                    sellerImage.setImageBitmap(imageModel.getImageBitmap());
+                                else
+                                    new DownloadImage(VehicleDetailsActivity.this,sellerImage, loadingIndicator).execute(seller.getImage());
+
+                            }
+                                // Old Version ---new DownloadImage(sellerImage,loadingIndicator).execute(seller.getImage());
 
                         }
                     }

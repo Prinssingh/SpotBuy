@@ -17,7 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.s19.spotbuy.Activity.ChatActivity;
 import com.s19.spotbuy.Activity.VehicleDetailsActivity;
+import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
@@ -80,7 +83,14 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
         @SuppressLint("SetTextI18n")
         public void bindData(VehiclePost vehicle, int i) {
             //Binding here
-            new DownloadImage(image,imageProgressIndicator).execute(vehicle.getImageList().get(0));
+
+            ImageModel imageModel =new ImageManager(mContext).getImageByLink(vehicle.getImageList().get(0));
+            if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                image.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(mContext,image, imageProgressIndicator).execute(vehicle.getImageList().get(0));
+
+           // new DownloadImage(image,imageProgressIndicator).execute(vehicle.getImageList().get(0));
             brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
 

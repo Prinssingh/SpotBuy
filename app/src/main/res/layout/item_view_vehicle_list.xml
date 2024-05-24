@@ -20,10 +20,14 @@
        <RelativeLayout
            android:layout_width="match_parent"
            android:layout_height="wrap_content">
-           <ImageView
+           <com.google.android.material.imageview.ShapeableImageView
                android:id="@+id/vehicleImage"
                android:layout_width="match_parent"
                android:layout_height="120dp"
+               app:shapeAppearanceOverlay="@style/shapedImage"
+               android:layout_centerHorizontal="true"
+               android:scaleType="fitXY"
+               android:layout_alignParentTop="true"
                android:adjustViewBounds="true" />
            <ProgressBar
                android:id="@+id/imageEmptyIndicator"

@@ -2,6 +2,7 @@ package com.s19.spotbuy.Fragments.main;
 
 import static com.s19.spotbuy.Others.Constants.ChatRoomCollection;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +19,7 @@ import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Activity.ChatActivity;
+import com.s19.spotbuy.Activity.HomeActivity;
 import com.s19.spotbuy.Adapters.FireBase.RecentChatRecyclerAdapter;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.Models.Chat;
@@ -112,5 +115,10 @@ public class ChatsFragment extends Fragment {
     public void onStop() {
         super.onStop();
         adapter.stopListening();
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        ((HomeActivity)context).setSelectedChip(1);
     }
 }

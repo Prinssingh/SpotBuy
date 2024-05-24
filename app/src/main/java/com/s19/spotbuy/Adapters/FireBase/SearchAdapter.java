@@ -20,6 +20,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.s19.spotbuy.Activity.SearchActivity;
+import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
@@ -93,8 +95,13 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<VehiclePost, SearchA
 
         @SuppressLint("SetTextI18n")
         public void bindData(VehiclePost vehicle, int i) {
+            ImageModel imageModel =new ImageManager(mContext).getImageByLink(vehicle.getImageList().get(0));
+            if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                image.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(mContext,image, imageEmptyIndicator).execute(vehicle.getImageList().get(0));
 
-            new DownloadImage(image,imageEmptyIndicator).execute(vehicle.getImageList().get(0));
+           //Older Version -- new DownloadImage(image,imageEmptyIndicator).execute(vehicle.getImageList().get(0));
             brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
             yearModel.setText("" + vehicle.getModelYear());

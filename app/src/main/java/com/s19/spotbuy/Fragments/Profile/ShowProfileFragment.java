@@ -59,8 +59,8 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
         // Inflate the layout for this fragment
         Root = inflater.inflate(R.layout.fragment_show_profile, container, false);
         sharedPrefs = new SharedPrefs(requireContext());
-        userManager= new UserManager(requireContext());
-        imageManager= new ImageManager(requireContext());
+        userManager = new UserManager(requireContext());
+        imageManager = new ImageManager(requireContext());
 
         initView();
 
@@ -87,31 +87,29 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
         userGender = Root.findViewById(R.id.userGender);
         userAddress = Root.findViewById(R.id.userAddress);
 
-        if(curentUser.getId()!=null){
-            if(curentUser!=null){
-                if(curentUser.getImage()!=null || Objects.equals(curentUser.getImage(), "")) {
+        if (curentUser.getId() != null) {
+            if (curentUser != null) {
+                if (curentUser.getImage() != null || Objects.equals(curentUser.getImage(), "")) {
                     Bitmap temp = imageManager.getImageByLink(curentUser.getImage()).getImageBitmap();
-                    if(temp!=null)
+                    if (temp != null)
                         userImage.setImageBitmap(temp);
                     else
-                        new DownloadImage(userImage, imageProgressIndicator).execute(curentUser.getImage());
+                        new DownloadImage(requireContext(), userImage, imageProgressIndicator).execute(curentUser.getImage());
                 }
 
-                username.setText(""+curentUser.getName());
-                userName.setText(""+curentUser.getName());
-                post.setText(""+curentUser.getTotalPost());
-                followers.setText(""+curentUser.getFollowerCount());
-                following.setText(""+curentUser.getFollowingCount());
-                userMobile.setText(""+curentUser.getMobile());
-                userMobileAlt.setText(""+curentUser.getAlt_mobile());
-                userEmail.setText(""+curentUser.getEmail());
-                userGender.setText(""+curentUser.getGender());
-                userAddress.setText(""+curentUser. getAddress());
-            }
-            else
+                username.setText("" + curentUser.getName());
+                userName.setText("" + curentUser.getName());
+                post.setText("" + curentUser.getTotalPost());
+                followers.setText("" + curentUser.getFollowerCount());
+                following.setText("" + curentUser.getFollowingCount());
+                userMobile.setText("" + curentUser.getMobile());
+                userMobileAlt.setText("" + curentUser.getAlt_mobile());
+                userEmail.setText("" + curentUser.getEmail());
+                userGender.setText("" + curentUser.getGender());
+                userAddress.setText("" + curentUser.getAddress());
+            } else
                 initView();
-        }
-        else{
+        } else {
             db.collection(UserCollection)
                     .document(sharedPrefs.getSharedUID())
                     .get()
@@ -119,23 +117,22 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            curentUser= documentSnapshot.toObject(User.class);
-                            if(curentUser!=null){
-                                if(curentUser.getImage()!=null || Objects.equals(curentUser.getImage(), ""))
-                                    new DownloadImage(userImage,imageProgressIndicator).execute(curentUser.getImage());
+                            curentUser = documentSnapshot.toObject(User.class);
+                            if (curentUser != null) {
+                                if (curentUser.getImage() != null || Objects.equals(curentUser.getImage(), ""))
+                                    new DownloadImage(requireContext(), userImage, imageProgressIndicator).execute(curentUser.getImage());
 
-                                username.setText(""+curentUser.getName());
-                                userName.setText(""+curentUser.getName());
-                                post.setText(""+curentUser.getTotalPost());
-                                followers.setText(""+curentUser.getFollowerCount());
-                                following.setText(""+curentUser.getFollowingCount());
-                                userMobile.setText(""+curentUser.getMobile());
-                                userMobileAlt.setText(""+curentUser.getAlt_mobile());
-                                userEmail.setText(""+curentUser.getEmail());
-                                userGender.setText(""+curentUser.getGender());
-                                userAddress.setText(""+curentUser. getAddress());
-                            }
-                            else
+                                username.setText("" + curentUser.getName());
+                                userName.setText("" + curentUser.getName());
+                                post.setText("" + curentUser.getTotalPost());
+                                followers.setText("" + curentUser.getFollowerCount());
+                                following.setText("" + curentUser.getFollowingCount());
+                                userMobile.setText("" + curentUser.getMobile());
+                                userMobileAlt.setText("" + curentUser.getAlt_mobile());
+                                userEmail.setText("" + curentUser.getEmail());
+                                userGender.setText("" + curentUser.getGender());
+                                userAddress.setText("" + curentUser.getAddress());
+                            } else
                                 initView();
                         }
                     });

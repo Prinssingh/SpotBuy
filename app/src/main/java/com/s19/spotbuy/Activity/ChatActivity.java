@@ -31,8 +31,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Adapters.FireBase.ChatRecyclerAdapter;
+import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Models.ChatMessageModel;
 import com.s19.spotbuy.Models.ChatRoomModel;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.Dialogs.LoadingDialog;
@@ -90,8 +92,15 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             if (otherUser == null)
                                 return;
                             if (otherUser.getImage() != null)
-                                new DownloadImage(imageView, imageProgressIndicator).execute(otherUser.getImage());
+                            {
+                                ImageModel imageModel =new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
+                                if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                                    imageView.setImageBitmap(imageModel.getImageBitmap());
+                                else
+                                    new DownloadImage(ChatActivity.this,imageView, imageProgressIndicator).execute(otherUser.getImage());
 
+
+                            }
                             if (otherUser.getName() != null)
                                 otherUsername.setText(otherUser.getName());
                         }
@@ -123,7 +132,15 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         imageProgressIndicator = findViewById(R.id.imageProgressIndicator);
 
         if (otherUser.getImage() != null)
-            new DownloadImage(imageView, imageProgressIndicator).execute(otherUser.getImage());
+        {
+            ImageModel imageModel =new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
+            if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                imageView.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(ChatActivity.this,imageView, imageProgressIndicator).execute(otherUser.getImage());
+
+        }
+
 
         if (otherUser.getName() != null)
             otherUsername.setText(otherUser.getName());
