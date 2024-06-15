@@ -2,10 +2,12 @@ package com.s19.spotbuy.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.Fragments.main.HomeFragment;
+import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.VehicleCategory;
+import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.R;
 
 import java.util.List;
@@ -56,6 +60,7 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
         Context context;
         ImageView image;
         TextView title;
+        ProgressBar imageProgressIndicator;
 
 
 
@@ -65,6 +70,7 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
             this.context = context;
             image = itemView.findViewById(R.id.image);
             title = itemView.findViewById(R.id.title);
+            imageProgressIndicator = itemView.findViewById(R.id.imageProgressIndicator);
 
 
 
@@ -72,7 +78,20 @@ public class VehicleCategoryListAdapter extends RecyclerView.Adapter<RecyclerVie
 
         @SuppressLint("SetTextI18n")
         public void bindData(VehicleCategory vehicleCategory, int i) {
-            image.setImageBitmap(imageManager.getImageByLink(vehicleCategory.getImage()).getImageBitmap() );
+//            Older version code
+//            try {
+//                image.setImageBitmap(imageManager.getImageByLink(vehicleCategory.getImage()).getImageBitmap() );
+//            } catch (Exception e) {
+//                Log.e("TAG", "bindData: ",e );
+//
+//            }
+            ImageModel imageModel = new ImageManager(context).getImageByLink(vehicleCategory.getImage());
+            if (imageModel != null && imageModel.getImageBitmap() != null)
+                image.setImageBitmap(imageModel.getImageBitmap());
+            else
+                new DownloadImage(context, image, imageProgressIndicator).execute(vehicleCategory.getImage());
+
+
             title.setText(vehicleCategory.getName());
 
 

@@ -54,7 +54,7 @@ public class ScrollingImageAdapter extends PagerAdapter {
 
        try{
            ImageModel imageModel =imageManager.getImageByLink(images.get(position));
-           if(imageModel.getImageBitmap()!=null){
+           if(imageModel!=null && imageModel.getImageBitmap()!=null){
                imageView.setImageBitmap(imageModel.getImageBitmap());
            }
            else{

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.s19.spotbuy.DataBase.DBHelper;
 import com.s19.spotbuy.Models.VehicleBrandModel;
@@ -78,6 +79,7 @@ public class VehicleBrandModelManager {
         contentValues.put(CATEGORY_ID, brandModel.getCategoryId());
         contentValues.put(BRAND_ID, brandModel.getBrandId());
         dbw.insert(TABLE_NAME, null, contentValues);
+        Log.d("TAG", "insert: brandModel" + brandModel.getName());
 
     }
 

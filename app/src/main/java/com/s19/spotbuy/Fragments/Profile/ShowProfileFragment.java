@@ -91,7 +91,7 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
             if (curentUser != null) {
                 if (curentUser.getImage() != null || Objects.equals(curentUser.getImage(), "")) {
                     Bitmap temp = imageManager.getImageByLink(curentUser.getImage()).getImageBitmap();
-                    if (temp != null)
+                    if (temp != null )
                         userImage.setImageBitmap(temp);
                     else
                         new DownloadImage(requireContext(), userImage, imageProgressIndicator).execute(curentUser.getImage());

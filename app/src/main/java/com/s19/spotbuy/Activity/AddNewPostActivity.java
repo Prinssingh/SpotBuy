@@ -1,5 +1,6 @@
 package com.s19.spotbuy.Activity;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static com.s19.spotbuy.Others.Constants.CAMERA_ACTION_PICK_REQUEST_CODE;
 import static com.s19.spotbuy.Others.Constants.CAMERA_REQUEST;
 import static com.s19.spotbuy.Others.Constants.PICK_IMAGE_GALLERY_REQUEST_CODE;
@@ -53,6 +54,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.s19.spotbuy.Adapters.VehicleImageListAdapter;
+import com.s19.spotbuy.BuildConfig;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
 import com.s19.spotbuy.DataBase.VehicleDetails.FuelTypeManager;
@@ -77,9 +79,13 @@ import com.yalantis.ucrop.UCrop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class AddNewPostActivity extends MainActivity implements View.OnClickListener {
     ImageView back;
@@ -130,7 +136,7 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     Button addImage;
     ImageView TestImage;
     VehicleImageListAdapter ImageAdapter;
-    String currentPhotoPath = "";
+    String currentPhotoPath;
     String[] cameraPermission;
     String[] storagePermission;
 
@@ -145,12 +151,15 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
         sharedPrefs = new SharedPrefs(this);
         categoryManager = new VehicleCategoryManager(this);
         categoryList = categoryManager.getStringList();
+        if(!categoryList.isEmpty())
+            categoryList.remove(0);
+        Log.i("TAG", "onCreate: "+categoryList);
 
         brandManager = new VehicleBrandManager(this);
         brandModelManager = new VehicleBrandModelManager(this);
         vehiclePostManager = new VehiclePostManager(this);
         userManager = new UserManager(this);
-        user= userManager.getUserById(sharedPrefs.getSharedUID());
+        user = userManager.getUserById(sharedPrefs.getSharedUID());
 
         fuelTypeManager = new FuelTypeManager(this);
         fuelList = fuelTypeManager.getStringList();
@@ -190,9 +199,12 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                 android.R.layout.simple_list_item_1, categoryList);
         vehicleCategoryList.setAdapter(adapterCategory);
         vehicleCategoryList.setOnItemClickListener((adapterView, view, i, l) -> {
-            String CategoryId = categoryManager.listAll().get(i).getId();
+            String CategoryId = categoryManager.listAll().get(i+1).getId();
             currentVehicle.setCategoryId(CategoryId);
+            unsetBrandAdapter();
+
             List<String> brandList = brandManager.getBrandByCategoryId(CategoryId);
+            Log.d("TAG", "Brand List: "+brandList);
             setBrandAdapter(brandList);
 
         });
@@ -268,16 +280,27 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     }
 
     private void setBrandAdapter(List<String> brandList) {
-        ArrayAdapter adapterBrand = new ArrayAdapter<>(this,
+        ArrayAdapter<String> adapterBrand = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, brandList);
         vehicleBrandList.setAdapter(adapterBrand);
         vehicleBrandList.setOnItemClickListener((adapterView, view, i, l) -> {
             VehicleBrand Brand = brandManager.listAllbyCategoryId(currentVehicle.getCategoryId()).get(i);
             currentVehicle.setBrandId(Brand.getId());
-            currentVehicle.setTitle("" + Brand.getName());
+            currentVehicle.setTitle(Brand.getName());
+            unsetBrandModelAdapter();
+
             List<String> brandModelList = brandModelManager.getBrandModelByBrandId(Brand.getId());
+
             setBrandModelAdapter(brandModelList);
+
         });
+
+    }
+
+    private void unsetBrandAdapter(){
+        vehicleBrandList.setText("");
+        vehicleBrandList.setAdapter(null);
+        unsetBrandModelAdapter();
 
     }
 
@@ -292,7 +315,11 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
             currentVehicle.setTitle(currentVehicle.getTitle() + " " + model.getName());
         });
     }
+    private void unsetBrandModelAdapter(){
+        vehicleBrandModelList.setText("");
+        vehicleBrandModelList.setAdapter(null);
 
+    }
     private void setCityAdapter(String state) {
         ArrayAdapter<String> adapterCity;
         adapterCity = new ArrayAdapter<>(this,
@@ -322,10 +349,10 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                                 //Update Local Data Base
                                 currentVehicle.setId(documentReference.getId());
                                 vehiclePostManager.insert(currentVehicle);
-                                user.setAvailablePost(user.getAvailablePost()-1);
-                                user.setTotalPost(user.getTotalPost()+1);
+                                user.setAvailablePost(user.getAvailablePost() - 1);
+                                user.setTotalPost(user.getTotalPost() + 1);
                                 userManager.update(user);
-                                for(String url : currentVehicle.getImageList())
+                                for (String url : currentVehicle.getImageList())
                                     new SaveImageByteToDatabase(AddNewPostActivity.this).execute(url);
 
                                 db.collection(UserCollection)
@@ -469,25 +496,22 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
         return isValid;
     }
 
-    public void setTestImageVisibility(){
-        if(imageList.isEmpty()) {
+    public void setTestImageVisibility() {
+        if (imageList.isEmpty()) {
             TestImage.setVisibility(View.VISIBLE);
             addImage.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             TestImage.setVisibility(View.GONE);
             addImage.setVisibility(View.VISIBLE);
         }
 
-        if(imageList.size()==0) {
+        if (imageList.size() == 0) {
             TestImage.setVisibility(View.VISIBLE);
             addImage.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             TestImage.setVisibility(View.GONE);
             addImage.setVisibility(View.VISIBLE);
         }
-
 
 
     }
@@ -504,6 +528,7 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                     ImageAdapter.notifyItemInserted(imageList.size() - 1);
                     setTestImageVisibility();
                     imageProgressIndicator.setVisibility(View.GONE);
+
                 }
 
                 @Override
@@ -517,14 +542,10 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                     Toast.makeText(AddNewPostActivity.this, "Failed to add image!!", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             imageProgressIndicator.setVisibility(View.GONE);
 
-        }
-        finally {
-            imageProgressIndicator.setVisibility(View.GONE);
         }
     }
 
@@ -553,6 +574,11 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
                             imageList.add(String.valueOf(downloadUri));
+//                            // Set Local Image
+//                            ImageModel img =new ImageModel();
+//                            img.setLink(String.valueOf(downloadUri));
+//                            img.setImageBitmap(bitmap);
+//                            new ImageManager(AddNewPostActivity.this).insert(img);
                             listener.onSuccess();
                         } else {
                             // Handle failures
@@ -634,12 +660,14 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                         requestCameraPermission();
                     } else {
                         openCamera();
+
                     }
                 } else if (which == 1) {
                     if (!checkStoragePermission()) {
                         requestStoragePermission();
                     } else {
                         openImagesDocument();
+
                     }
                 }
             }
@@ -703,9 +731,12 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     private void openCamera() {
         Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File file = getImageFile(); // 1
+        Log.d("TAG", "openCamera: currentPhotoPath" + currentPhotoPath);
         Uri uri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) // 2
-            uri = FileProvider.getUriForFile(this, "com.s19mobility.spotbuy.provider", file);
+        if (SDK_INT >= Build.VERSION_CODES.N) // 2
+            uri = FileProvider.getUriForFile(Objects.requireNonNull(getApplicationContext()),
+                    BuildConfig.APPLICATION_ID + ".provider", file);
+
         else
             uri = Uri.fromFile(file); // 3
         pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri); // 4
@@ -713,33 +744,42 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     }
 
     private File getImageFile() {
-        String imageFileName = "JPEG_" + System.currentTimeMillis() + "_";
-        File storageDir = new File(
-                Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DCIM
-                ), "Camera"
-        );
-        File file = null;
-        try {
-            file = File.createTempFile(
-                    imageFileName, ".jpg", storageDir
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "PROFILE_PICTURE_" + timeStamp;
+        File image, storageDir;
 
-            );
-            currentPhotoPath = "file:" + file.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (SDK_INT < Build.VERSION_CODES.Q) {
+            storageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SpotBuy");
+            if (!storageDir.exists()) {
+                storageDir.mkdirs();
+            }
+            image = new File(storageDir, imageFileName + ".jpg");
+            try {
+                image.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            currentPhotoPath = image.getAbsolutePath();
+        } else {
+            storageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES + File.separator + "SpotBuy");
+            try {
+                image = File.createTempFile(imageFileName, ".jpg", storageDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            currentPhotoPath = image.getAbsolutePath();
         }
 
-        return file;
+        return image;
+
+
     }
 
     private void openCropActivity(Uri sourceUri, Uri destinationUri) {
-        UCrop.Options options = new UCrop.Options();
         UCrop.of(sourceUri, destinationUri)
                 .withMaxResultSize(1050, 850)
                 .withAspectRatio(4f, 3f)
-                .withOptions(options)
-                .start(this);
+                .start(AddNewPostActivity.this);
     }
 
     private void openImagesDocument() {
@@ -753,7 +793,8 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
 
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_ACTION_PICK_REQUEST_CODE && resultCode == RESULT_OK) {
             Uri uri = Uri.parse(currentPhotoPath);
@@ -764,19 +805,21 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
             Uri uri = UCrop.getOutput(data);
             setVehicleImageFromUri(uri);
 
-        } else if (requestCode == PICK_IMAGE_GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+        }
+        else if (requestCode == PICK_IMAGE_GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             Uri sourceUri = data.getData(); // 1
             File file = getImageFile(); // 2
+            if (file != null) {
+                Log.d("TAG", "File:d " + file.getPath());
+                Log.d("TAG", "File:s " + sourceUri);
+            }
             Uri destinationUri = Uri.fromFile(file);  // 3
             openCropActivity(sourceUri, destinationUri);  // 4
 
         } else if (resultCode == UCrop.RESULT_ERROR) {
-            Toast.makeText(this, "Error" + UCrop.getError(data), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error : " + UCrop.getError(data), Toast.LENGTH_SHORT).show();
             Log.d("TAG", "onActivityResult: " + UCrop.getError(data));
         } else Toast.makeText(this, "Error!!", Toast.LENGTH_SHORT).show();
     }
 
-
 }
-
-

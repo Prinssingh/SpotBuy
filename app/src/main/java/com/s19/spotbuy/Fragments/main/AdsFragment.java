@@ -148,7 +148,11 @@ public class AdsFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        ((HomeActivity)context).setSelectedChip(2);
+        try {
+            ((HomeActivity)context).setSelectedChip(2);
+        } catch (Exception ignored) {
+
+        }
     }
 
 

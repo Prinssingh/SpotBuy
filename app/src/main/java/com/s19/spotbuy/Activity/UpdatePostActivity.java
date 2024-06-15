@@ -1,5 +1,6 @@
 package com.s19.spotbuy.Activity;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static com.s19.spotbuy.Others.Constants.CAMERA_ACTION_PICK_REQUEST_CODE;
 import static com.s19.spotbuy.Others.Constants.CAMERA_REQUEST;
 import static com.s19.spotbuy.Others.Constants.PICK_IMAGE_GALLERY_REQUEST_CODE;
@@ -67,9 +68,12 @@ import com.yalantis.ucrop.UCrop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class UpdatePostActivity extends MainActivity implements View.OnClickListener {
@@ -132,6 +136,8 @@ public class UpdatePostActivity extends MainActivity implements View.OnClickList
 
         categoryManager = new VehicleCategoryManager(this);
         categoryList = categoryManager.getStringList();
+        if(!categoryList.isEmpty())
+            categoryList.remove(0);
 
         brandManager = new VehicleBrandManager(this);
         brandModelManager = new VehicleBrandModelManager(this);
@@ -180,6 +186,7 @@ public class UpdatePostActivity extends MainActivity implements View.OnClickList
         vehicleCategoryList.setOnItemClickListener((adapterView, view, i, l) -> {
             String CategoryId = categoryManager.listAll().get(i).getId();
             currentVehicle.setCategoryId(CategoryId);
+            unsetBrandAdapter();
             List<String> brandList = brandManager.getBrandByCategoryId(CategoryId);
             setBrandAdapter(brandList);
 
@@ -260,9 +267,17 @@ public class UpdatePostActivity extends MainActivity implements View.OnClickList
             VehicleBrand Brand = brandManager.listAllbyCategoryId(currentVehicle.getCategoryId()).get(i);
             currentVehicle.setBrandId(Brand.getId());
             currentVehicle.setTitle("" + Brand.getName());
+            unsetBrandModelAdapter();
             List<String> brandModelList = brandModelManager.getBrandModelByBrandId(Brand.getId());
             setBrandModelAdapter(brandModelList);
         });
+
+    }
+
+    private void unsetBrandAdapter(){
+        vehicleBrandList.setText("");
+        vehicleBrandList.setAdapter(null);
+        unsetBrandModelAdapter();
 
     }
 
@@ -276,6 +291,12 @@ public class UpdatePostActivity extends MainActivity implements View.OnClickList
             currentVehicle.setModelId(model.getId());
             currentVehicle.setTitle(currentVehicle.getTitle() + " " + model.getName());
         });
+    }
+
+    private void unsetBrandModelAdapter(){
+        vehicleBrandModelList.setText("");
+        vehicleBrandModelList.setAdapter(null);
+
     }
 
     private void setCityAdapter(String state) {
@@ -662,24 +683,35 @@ public class UpdatePostActivity extends MainActivity implements View.OnClickList
     }
 
     private File getImageFile() {
-        String imageFileName = "JPEG_" + System.currentTimeMillis() + "_";
-        File storageDir = new File(
-                Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DCIM
-                ), "Camera"
-        );
-        File file = null;
-        try {
-            file = File.createTempFile(
-                    imageFileName, ".jpg", storageDir
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "PROFILE_PICTURE_" + timeStamp;
+        File image, storageDir;
 
-            );
-            currentPhotoPath = "file:" + file.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (SDK_INT < Build.VERSION_CODES.Q) {
+            storageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SpotBuy");
+            if (!storageDir.exists()) {
+                storageDir.mkdirs();
+            }
+            image = new File(storageDir, imageFileName + ".jpg");
+            try {
+                image.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            currentPhotoPath = image.getAbsolutePath();
+        } else {
+            storageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES + File.separator + "SpotBuy");
+            try {
+                image = File.createTempFile(imageFileName, ".jpg", storageDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            currentPhotoPath = image.getAbsolutePath();
         }
 
-        return file;
+        return image;
+
+
     }
 
     private void openCropActivity(Uri sourceUri, Uri destinationUri) {

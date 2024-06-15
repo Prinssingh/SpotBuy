@@ -71,17 +71,17 @@ public class ReadBasicFireBaseData {
                 Date date =timestamp.toDate();
                 if (sharedPrefs.getLastUpdateDate()==null ||sharedPrefs.getLastUpdateDate().getTime()<date.getTime()){
                     sharedPrefs.setLastUpdateDate(date);
-                    Toast.makeText(context, "Update Available!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Updating...", Toast.LENGTH_SHORT).show();
                     Log.e("Here","Update Available");
                     doOperations();
                 }
                 else {
-                    Toast.makeText(context, "No Updates!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "No Updates!", Toast.LENGTH_SHORT).show();
                     Log.e("Here","Update NOT Available");
                 }
 
-                Log.e("Here","Date Firebase"+date);
-                Log.e("HERE","Local Dtae"+sharedPrefs.getLastUpdateDate());
+                //Log.e("Here","Date Firebase"+date);
+                //Log.e("HERE","Local Dtae"+sharedPrefs.getLastUpdateDate());
 
             }
 
@@ -131,7 +131,6 @@ public class ReadBasicFireBaseData {
                 });
 
     }
-
 
     private void readFirebaseFuelTypes() {
         db.collection(FuelTypeCollection)
@@ -248,8 +247,6 @@ public class ReadBasicFireBaseData {
                         for (QueryDocumentSnapshot snap : queryDocumentSnapshots) {
                             VehiclePost vehiclePost = snap.toObject(VehiclePost.class);
                             vehiclePostManager.insert(vehiclePost);
-                            Log.e("TAG", "onSuccess: "+vehiclePost.getKmsRidden());
-                            Log.e("TAG", "onSuccess: "+vehiclePost.getTitle());
                             for (String url : vehiclePost.getImageList())
                                 new SaveImageByteToDatabase(context).execute(url);
 

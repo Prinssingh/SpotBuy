@@ -92,13 +92,13 @@ public class MyAdsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             viewPager.setAdapter(imageAdapter);
             //dotsIndicator.setViewPager(viewPager); Todo
 
-            brandName.setText(""+vehicle.getTitle());
+            brandName.setText(vehicle.getTitle());
             price.setText("₹" + vehicle.getPrice());
-            yearModel.setText("" + vehicle.getModelYear()+" Model");
-            chip1.setText(""+vehicle.getNumberOfOwner()+" Owners");
-            chip2.setText(""+vehicle.getKmsRidden()+" KM");
-            chip3.setText(""+vehicle.getFuelType());
-            description.setText(""+vehicle.getDescription());
+            yearModel.setText(vehicle.getModelYear()+" Model");
+            chip1.setText(vehicle.getNumberOfOwner()+" Owners");
+            chip2.setText(vehicle.getKmsRidden()+" KM");
+            chip3.setText(vehicle.getFuelType());
+            description.setText(vehicle.getDescription());
 
             switch (vehicle.getStatus()) {
                 case "PENDING":

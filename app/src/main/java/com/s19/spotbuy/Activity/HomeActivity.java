@@ -47,7 +47,7 @@ public class HomeActivity extends MainActivity {
 
         new PermissionChecker(this, this);
         //For Location Only
-        checkRunTimePermission();
+        //checkRunTimePermission();
     }
 
     private void bottomMenu() {
@@ -76,7 +76,11 @@ public class HomeActivity extends MainActivity {
     }
 
     public void setSelectedChip(int i){
-        chipNavigationBar.setItemSelected(i,false);
+        try {
+            chipNavigationBar.setItemSelected(i,false);
+        } catch (Exception ignored) {
+
+        }
     }
 
     public void checkRunTimePermission() {

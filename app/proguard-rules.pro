@@ -34,3 +34,11 @@
 
 # Optional. For using GSON @Expose annotation
 -keepattributes AnnotationDefault,RuntimeVisibleAnnotations
+
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
+
+-dontwarn com.mikelau.croperino.**
+-keep class com.mikelau.croperino.** { *; }
+-keep interface com.mikelau.croperino.** { *; }

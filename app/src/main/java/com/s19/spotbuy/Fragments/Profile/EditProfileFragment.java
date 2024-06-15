@@ -361,7 +361,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                                 if (user.getImage() != null || user.getImage() != "") {
                                     sharedPrefs.setSharedImage(user.getImage());
                                     ImageModel imageModel = new ImageManager(activity).getImageByLink(user.getImage());
-                                    if (imageModel != null || imageModel.getImageBitmap() != null)
+                                    if (imageModel != null && imageModel.getImageBitmap() != null)
                                         userImage.setImageBitmap(imageModel.getImageBitmap());
                                     else
                                         new DownloadImage(activity, userImage, imageProgressIndicator).execute(user.getImage());

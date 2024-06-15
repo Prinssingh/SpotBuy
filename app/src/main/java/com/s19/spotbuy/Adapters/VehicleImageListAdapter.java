@@ -72,7 +72,7 @@ public class VehicleImageListAdapter extends RecyclerView.Adapter<RecyclerView.V
         public void bindData(String imageUrl, int i) {
             //Binding here
             ImageModel imageModel = new ImageManager(context).getImageByLink(imageUrl);
-            if (imageModel != null || imageModel.getImageBitmap() != null)
+            if (imageModel != null && imageModel.getImageBitmap() != null)
                 image_view.setImageBitmap(imageModel.getImageBitmap());
             else
                 new DownloadImage(context, image_view, loadingIndicator).execute(imageUrl);
