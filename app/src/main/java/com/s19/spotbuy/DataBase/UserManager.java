@@ -37,6 +37,10 @@ public class UserManager {
     public static final String FOLLOWERS = "followers";
     public static final String FOLLOWING = "following";
 
+    public static final String CITY = "city";
+    public static final String STATE = "state";
+    public static final String COUNTRY = "country";
+
 
     //Create Table Query
     public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
@@ -44,6 +48,9 @@ public class UserManager {
             + ID + " TEXT NOT NULL, "
             + ACTIVE + " INTEGER, "
             + ADDRESS + " TEXT , "
+            + CITY + " TEXT , "
+            + STATE + " TEXT , "
+            + COUNTRY + " TEXT , "
             + ALT_MOBILE + " TEXT , "
             + AVAILABLE_POST + " INTEGER , "
             + DATE_TIME + " TEXT , "
@@ -98,6 +105,9 @@ public class UserManager {
         contentValues.put(ID, user.getId());
         contentValues.put(ACTIVE, user.isActive());
         contentValues.put(ADDRESS, user.getAddress());
+        contentValues.put(CITY, user.getCity());
+        contentValues.put(STATE, user.getState());
+        contentValues.put(COUNTRY, user.getCountry());
         contentValues.put(ALT_MOBILE, user.getAlt_mobile());
         contentValues.put(AVAILABLE_POST, user.getAvailablePost());
         contentValues.put(DATE_TIME, user.getDateTimeString());
@@ -123,6 +133,9 @@ public class UserManager {
         contentValues.put(ID, user.getId());
         contentValues.put(ACTIVE, user.isActive());
         contentValues.put(ADDRESS, user.getAddress());
+        contentValues.put(CITY, user.getCity());
+        contentValues.put(STATE, user.getState());
+        contentValues.put(COUNTRY, user.getCountry());
         contentValues.put(ALT_MOBILE, user.getAlt_mobile());
         contentValues.put(AVAILABLE_POST, user.getAvailablePost());
         contentValues.put(DATE_TIME, user.getDateTimeString());
@@ -176,6 +189,9 @@ public class UserManager {
                 user.setId(cursor.getString(cursor.getColumnIndex(ID)));
                 user.setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE)) != 0);
                 user.setAddress(cursor.getString(cursor.getColumnIndex(ADDRESS)));
+                user.setCity(cursor.getString(cursor.getColumnIndex(CITY)));
+                user.setState(cursor.getString(cursor.getColumnIndex(STATE)));
+                user.setCountry(cursor.getString(cursor.getColumnIndex(COUNTRY)));
                 user.setAlt_mobile(cursor.getString(cursor.getColumnIndex(ALT_MOBILE)));
                 user.setAvailablePost(cursor.getInt(cursor.getColumnIndex(AVAILABLE_POST)));
                 user.setDateTimeString(cursor.getString(cursor.getColumnIndex(DATE_TIME)));
@@ -209,6 +225,9 @@ public class UserManager {
             user.setId(cursor.getString(cursor.getColumnIndex(ID)));
             user.setActive(cursor.getInt(cursor.getColumnIndex(ACTIVE)) != 0);
             user.setAddress(cursor.getString(cursor.getColumnIndex(ADDRESS)));
+            user.setCity(cursor.getString(cursor.getColumnIndex(CITY)));
+            user.setState(cursor.getString(cursor.getColumnIndex(STATE)));
+            user.setCountry(cursor.getString(cursor.getColumnIndex(COUNTRY)));
             user.setAlt_mobile(cursor.getString(cursor.getColumnIndex(ALT_MOBILE)));
             user.setAvailablePost(cursor.getInt(cursor.getColumnIndex(AVAILABLE_POST)));
             user.setDateTimeString(cursor.getString(cursor.getColumnIndex(DATE_TIME)));

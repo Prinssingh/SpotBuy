@@ -5,10 +5,13 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardElevation="8dp"
-    android:layout_margin="4dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="16dp"
     app:cardCornerRadius="8dp">
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="160dp"
         android:orientation="vertical"
         android:padding="4dp"
         android:layout_height="match_parent">
@@ -17,8 +20,10 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/vehicleImage"
-                android:layout_width="160dp"
-                android:layout_height="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:src="@drawable/car"
+                android:fitsSystemWindows="true"
                 tools:ignore="ContentDescription" />
             <ProgressBar
                 android:id="@+id/imageProgressIndicator"
@@ -36,7 +41,10 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:text="R500000"
-            android:textSize="28sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="24sp"
+            android:layout_marginTop="4dp"
             android:textColor="@color/black"
             android:gravity="center"
             android:fontFamily="@font/baloo_normal"/>
@@ -46,10 +54,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Brand name"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
             android:gravity="center"
-            android:layout_marginBottom="36dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_marginBottom="4dp"
             android:fontFamily="@font/baloo_normal"/>
 
     </LinearLayout>

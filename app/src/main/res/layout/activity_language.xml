@@ -302,6 +302,6 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom"
         app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+        app:adUnitId="@string/banner_1" />
 
 </RelativeLayout>

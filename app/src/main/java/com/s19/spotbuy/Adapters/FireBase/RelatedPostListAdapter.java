@@ -55,7 +55,7 @@ public class RelatedPostListAdapter extends FirestoreRecyclerAdapter<VehiclePost
 
     @Override
     public void onError(FirebaseFirestoreException e) {
-        Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Error" +e, Toast.LENGTH_SHORT).show();
         Log.e("HERE", "onError: ", e);
     }
 

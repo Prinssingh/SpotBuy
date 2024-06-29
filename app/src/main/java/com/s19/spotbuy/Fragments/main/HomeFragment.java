@@ -2,14 +2,10 @@ package com.s19.spotbuy.Fragments.main;
 
 import static com.s19.spotbuy.Others.Constants.VehiclePostCollection;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -50,12 +45,12 @@ import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
 import com.s19.spotbuy.DataBase.VehicleDetails.VehicleCategoryManager;
+import com.s19.spotbuy.Dialogs.LocationPickerDialog;
 import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Models.VehicleCategory;
 import com.s19.spotbuy.Models.VehiclePost;
 import com.s19.spotbuy.Others.Constants;
-import com.s19.spotbuy.Others.GPSTracker;
 import com.s19.spotbuy.R;
 import com.s19.spotbuy.Widgets.WrapContentGridlayoutManager;
 import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
@@ -81,8 +76,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     RecyclerView VehicleCategory, vehiclesList;
     TextView title;
     LinearLayout emptyIndicator;
-
-    GPSTracker gpsTracker;
     FirestoreRecyclerAdapter adapterCategory, adapterVehicle;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPrefs sharedPrefs;
@@ -160,19 +153,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         location = Root.findViewById(R.id.location);
         location.setOnClickListener(this);
 
-        new Handler().post(() -> {
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                gpsTracker = new GPSTracker(requireContext());
-                if (gpsTracker.canGetLocation()) {
+        location.setText(sharedPrefs.getSharedCity());
 
-                    location.setText(gpsTracker.getLocality());
-                }
-            }
-
-
-        });
 
         VehicleCategory = Root.findViewById(R.id.VehicleCategory);
         VehicleCategory.setLayoutManager(new WrapContentLinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -196,10 +178,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     public void setNavigationViewProfile() {
         try {
             User user = userManager.getUserById(sharedPrefs.getSharedUID());
-            ImageModel imageModel = imageManager.getImageByLink(user.getImage());
-            if (imageModel.getImageBitmap() != null)
-                userImage.setImageBitmap(imageModel.getImageBitmap());
             userName.setText(user.getName());
+            ImageModel imageModel = imageManager.getImageByLink(user.getImage());
+            if (imageModel != null && imageModel.getImageBitmap() != null)
+                userImage.setImageBitmap(imageModel.getImageBitmap());
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -341,20 +325,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
 
         if (location == view) {
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                gpsTracker = new GPSTracker(requireContext());
-                if (gpsTracker.canGetLocation()) {
-
-                    Log.i("here", "startActivityForResult: " + gpsTracker.getLatitude()
-                            + "  " + gpsTracker.getLongitude());
-                    location.setText("" + gpsTracker.getLatitude());
-                    location.setText(gpsTracker.getLocality());
-                }
-            }
-
-
+            new LocationPickerDialog(requireActivity(), this).show();
         }
     }
 
@@ -421,6 +392,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        ((HomeActivity)context).setSelectedChip(0);
+        ((HomeActivity) context).setSelectedChip(0);
     }
+
+    public void onLocationUpdate(String City, String state) {
+
+        //Update Adapter for filtering data city wise
+        location.setText(City);
+    }
+
+
 }

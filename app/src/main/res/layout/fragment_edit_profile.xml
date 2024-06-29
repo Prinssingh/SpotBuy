@@ -161,31 +161,34 @@
                 tools:ignore="HardcodedText" />
 
 
-            <LinearLayout
-                android:id="@+id/linearBG"
-                android:visibility="gone"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cityList"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/custom_input_design"
-                android:gravity="center"
-                android:orientation="horizontal">
+                app:boxBackgroundColor="#fafafa"
+                app:startIconDrawable="@drawable/icon_location"
+                app:boxCornerRadiusTopEnd="12dp"
+                android:dropDownSelector="@android:color/white"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="1dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-
-                    android:src="@drawable/icon_gender" />
-
-                <Spinner
-                    android:id="@+id/genderT"
+                <AutoCompleteTextView
+                    android:id="@+id/city"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:entries="@array/gender" />
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1"
+                    android:autofillHints="none"
+                    android:dropDownAnchor="@id/userAddress"
+                    tools:ignore="LabelFor" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/menu"
@@ -221,8 +224,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_margin="16dp"
+                android:focusable="true"
+                android:clickable="true"
                 android:backgroundTint="@color/theme_primary"
-                android:text="update"
+                android:text="@string/update"
                 app:cornerRadius="12dp" />
 
 

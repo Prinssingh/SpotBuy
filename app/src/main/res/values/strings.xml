@@ -60,23 +60,32 @@
     <string name="ad_attribution">ad</string>
 
 
-<!--    AdMobe Strings-->
-    <string name="admobe_app_id">ca-app-pub-4819890555911837~8884608400</string>
+<!--    AdMobe Test Strings-->
+    <string name="admobe_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banner_1">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_2">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="interstitial_1">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="native_1">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_2">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="rewarded_1">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="rewarded_2">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="select_your_city">Select Your City</string>
+    <string name="select_your_state">Select Your State</string>
+    <string name="save">Save</string>
 
-    <string name="banner_1">ca-app-pub-4819890555911837/7661998408</string>
-    <string name="banner_2">ca-app-pub-4819890555911837/7898296967</string>
-    <string name="native_1">ca-app-pub-4819890555911837/4011022847</string>
-    <string name="native_2">ca-app-pub-4819890555911837/6585215299</string>
-    <string name="rewarded_1">ca-app-pub-4819890555911837/5324104510</string>
-    <string name="rewarded_2">ca-app-pub-4819890555911837/6348916730</string>
-    <string name="rewarded_3">ca-app-pub-4819890555911837/6448633862</string>
-    <string name="interstitial_1">ca-app-pub-4819890555911837/4940961131</string>
-<!--    AdMobe Strings-->
-    <string name="admobe_app_id_sample">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="banner">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="native_ad">ca-app-pub-3940256099942544/2247696110</string>
-    <string name="rewarded_ad">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="interstitial_ad">ca-app-pub-3940256099942544/1033173712</string>
+
+    <!--    &lt;!&ndash;    AdMobe Ranjana Account Strings&ndash;&gt;-->
+<!--    <string name="admobe_app_id">ca-app-pub-9095339188186410~3407571314</string>-->
+<!--    <string name="banner_1">ca-app-pub-9095339188186410/3776889368</string>-->
+<!--    <string name="banner_2">ca-app-pub-9095339188186410/2283844299</string>-->
+<!--    <string name="interstitial_1">ca-app-pub-9095339188186410/1150726026</string>-->
+<!--    <string name="native_1">ca-app-pub-9095339188186410/7524562684</string>-->
+<!--    <string name="native_2">ca-app-pub-9095339188186410/8657680956</string>-->
+<!--    <string name="rewarded_1">ca-app-pub-9095339188186410/1150386713</string>-->
+<!--    <string name="rewarded_2">ca-app-pub-9095339188186410/3585317675</string>-->
+
+
+
 
 
 </resources>

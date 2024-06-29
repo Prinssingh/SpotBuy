@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="274dp"
+    android:layout_margin="4dp"
+    android:background="?selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Theme.SpotBuy.AdAttribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp" />
+        <com.google.android.gms.ads.nativead.NativeAdView
+            android:layout_width="match_parent"
+            android:id="@+id/native_ad_view"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:background="@android:color/transparent"
+                android:orientation="vertical">
+
+
+
+                <com.google.android.gms.ads.nativead.MediaView
+                    android:id="@+id/ad_media"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="8dp"
+                    android:fitsSystemWindows="true"
+                    android:layout_marginEnd="2dp" />
+
+                <ImageView
+                    android:id="@+id/ad_app_icon"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_below="@+id/ad_media"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="4dp"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/logo" />
+
+                <LinearLayout
+                    android:id="@+id/mainTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ad_media"
+                    android:layout_marginStart="2dp"
+                    android:layout_toEndOf="@+id/ad_app_icon"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/ad_headline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Spot Buy"
+                        android:lineHeight="12dp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/baloo_bold"
+                       />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="-4dp">
+
+                        <TextView
+                            android:id="@+id/ad_advertiser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom"
+                            android:lineHeight="10dp"
+                            android:textStyle="bold" />
+
+                        <RatingBar
+                            android:id="@+id/ad_stars"
+                            style="?android:attr/ratingBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:isIndicator="true"
+                            android:numStars="5"
+                            android:stepSize="0.5" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/ad_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/mainTitle"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:textSize="14sp"
+                    android:ellipsize="end"
+                    android:lineHeight="12sp"
+                    android:maxLines="2"
+                    android:fontFamily="@font/baloo_normal"
+                    android:text="This is body \nsdys"
+                    tools:ignore="HardcodedText,UnusedAttribute" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ad_body"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/ad_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/green"
+                        android:fontFamily="@font/baloo_normal"
+                        android:text="Free" />
+
+                    <TextView
+                        android:id="@+id/ad_store"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/theme_primary"
+                        android:fontFamily="@font/baloo_normal"
+                        android:text="Google Play Store" />
+
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+
+                    android:id="@+id/ad_call_to_action"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/baloo_normal"
+                    android:text="install"
+                    app:cornerRadius="8dp"
+                    android:textStyle="bold"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    app:icon="@drawable/ic_download"
+                    app:iconSize="22dp" />
+            </RelativeLayout>
+
+
+        </com.google.android.gms.ads.nativead.NativeAdView>
+    </RelativeLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

@@ -8,8 +8,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,10 +44,14 @@ import com.s19.spotbuy.Others.DownloadImage;
 import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
 import com.s19.spotbuy.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 
 public class VehicleDetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    ImageView back;
+    ImageView back, share;
 
     ViewPager viewPager;
     //SpringDotsIndicator dotsIndicator;
@@ -80,6 +87,9 @@ public class VehicleDetailsActivity extends AppCompatActivity implements View.On
 
         back = findViewById(R.id.back);
         back.setOnClickListener(this);
+
+        share = findViewById(R.id.share);
+        share.setOnClickListener(this);
 
 
         viewPager = findViewById(R.id.vehiclesImages);
@@ -118,18 +128,22 @@ public class VehicleDetailsActivity extends AppCompatActivity implements View.On
         sellerCard.setOnClickListener(this);
 
 
-        relatedPosts = findViewById(R.id.relatedPosts);
-        relatedPosts.setLayoutManager(new WrapContentLinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        Query query = db.collection(VehiclePostCollection)
-                .whereNotEqualTo("id", vehicle.getId())
-                .whereEqualTo("active", true)
-                .whereEqualTo("status", "APPROVED")
-                .whereEqualTo("categoryId", vehicle.getCategoryId());
-        FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
-                .setQuery(query, VehiclePost.class)
-                .build();
-        relatedPostsAdapter = new RelatedPostListAdapter(options, this, this);
-        relatedPosts.setAdapter(relatedPostsAdapter);
+        try {
+            relatedPosts = findViewById(R.id.relatedPosts);
+            relatedPosts.setLayoutManager(new WrapContentLinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+            Query query = db.collection(VehiclePostCollection)
+                    .whereNotEqualTo("id", vehicle.getId())
+                    .whereEqualTo("active", true)
+                    .whereEqualTo("status", "APPROVED")
+                    .whereEqualTo("categoryId", vehicle.getCategoryId());
+            FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
+                    .setQuery(query, VehiclePost.class)
+                    .build();
+            relatedPostsAdapter = new RelatedPostListAdapter(options, this, this);
+            relatedPosts.setAdapter(relatedPostsAdapter);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error" +e, Toast.LENGTH_SHORT).show();
+        }
 
 
         db.collection(UserCollection)
@@ -169,6 +183,10 @@ public class VehicleDetailsActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
         if (view == back) {
             finish();
+        }
+
+        if(view ==share){
+            sharePost();
         }
 
         if (view == sellerCard) {
@@ -268,6 +286,32 @@ public class VehicleDetailsActivity extends AppCompatActivity implements View.On
         }
     }
 
+
+    public  void  sharePost(){
+        ImageModel imgModel = new ImageManager(this).getImageByLink(vehicle.getImageList().get(0));
+
+        Intent shareIntent;
+        Bitmap bitmap= imgModel.getImageBitmap();
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/Share.png";
+        OutputStream out = null;
+        File file=new File(path);
+        try {
+            out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        path=file.getPath();
+        Uri bmpUri = Uri.parse("file://"+path);
+        shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+        shareIntent.putExtra(Intent.EXTRA_TEXT,"Hey please check this vehicle on\n\n" + "https://play.google.com/store/apps/details?id=" +getPackageName());
+        shareIntent.setType("image/png");
+        startActivity(Intent.createChooser(shareIntent,"Share with"));
+    }
 
 
 }

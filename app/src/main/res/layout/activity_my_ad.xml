@@ -56,6 +56,6 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom"
         app:adSize="BANNER"
-        app:adUnitId="@string/banner" />
+        app:adUnitId="@string/banner_2" />
 
 </RelativeLayout>

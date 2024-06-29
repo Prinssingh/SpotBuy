@@ -187,7 +187,7 @@ public class SellFragment extends Fragment implements View.OnClickListener {
     }
 
     private void loadNativeAd() {
-        AdLoader.Builder adBuilder = new AdLoader.Builder(activity, activity.getResources().getString(R.string.native_ad));
+        AdLoader.Builder adBuilder = new AdLoader.Builder(activity, activity.getResources().getString(R.string.native_1));
         adBuilder.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
             @Override
             public void onNativeAdLoaded(@NonNull NativeAd nativeAd) {
@@ -214,13 +214,13 @@ public class SellFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                 super.onAdFailedToLoad(loadAdError);
-                Toast.makeText(activity, "Failed to load Error" + loadAdError, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(activity, "Failed to load Error" + loadAdError, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Toast.makeText(activity, "Ad loaded", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(activity, "Ad loaded", Toast.LENGTH_SHORT).show();
             }
         }).build();
 

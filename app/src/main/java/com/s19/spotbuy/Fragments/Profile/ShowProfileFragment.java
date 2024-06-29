@@ -34,7 +34,7 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
     ShapeableImageView userImage;
     ProgressBar imageProgressIndicator;
 
-    TextView username, post, followers, following, userName, userMobile, userMobileAlt, userEmail, userGender, userAddress;
+    TextView username, post, followers, following, userName, userMobile, userMobileAlt, userEmail, userGender, city, userAddress;
 
     Button editProfile;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -86,12 +86,13 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
         userEmail = Root.findViewById(R.id.userEmail);
         userGender = Root.findViewById(R.id.userGender);
         userAddress = Root.findViewById(R.id.userAddress);
+        city = Root.findViewById(R.id.city);
 
         if (curentUser.getId() != null) {
             if (curentUser != null) {
                 if (curentUser.getImage() != null || Objects.equals(curentUser.getImage(), "")) {
                     Bitmap temp = imageManager.getImageByLink(curentUser.getImage()).getImageBitmap();
-                    if (temp != null )
+                    if (temp != null)
                         userImage.setImageBitmap(temp);
                     else
                         new DownloadImage(requireContext(), userImage, imageProgressIndicator).execute(curentUser.getImage());
@@ -103,10 +104,11 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
                 followers.setText("" + curentUser.getFollowerCount());
                 following.setText("" + curentUser.getFollowingCount());
                 userMobile.setText("" + curentUser.getMobile());
-                userMobileAlt.setText("" + curentUser.getAlt_mobile());
+                userMobileAlt.setText(curentUser.getAlt_mobile()!=null?curentUser.getAlt_mobile() :"Not set");
                 userEmail.setText("" + curentUser.getEmail());
                 userGender.setText("" + curentUser.getGender());
                 userAddress.setText("" + curentUser.getAddress());
+                city.setText(""+curentUser.getCity());
             } else
                 initView();
         } else {
@@ -132,6 +134,7 @@ public class ShowProfileFragment extends Fragment implements View.OnClickListene
                                 userEmail.setText("" + curentUser.getEmail());
                                 userGender.setText("" + curentUser.getGender());
                                 userAddress.setText("" + curentUser.getAddress());
+                                city.setText(""+curentUser.getCity());
                             } else
                                 initView();
                         }

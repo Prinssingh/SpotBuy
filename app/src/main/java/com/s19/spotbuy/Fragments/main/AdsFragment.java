@@ -16,11 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Activity.HomeActivity;
@@ -30,8 +25,8 @@ import com.s19.spotbuy.Adapters.MyAdsListAdapter;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.VehiclePostManager;
 import com.s19.spotbuy.Models.VehiclePost;
-import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
 import com.s19.spotbuy.R;
+import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
 
 
 public class AdsFragment extends Fragment {
@@ -41,7 +36,7 @@ public class AdsFragment extends Fragment {
     LinearLayout header_title, emptyIndicator;
 
     RecyclerView myAdList;
-    FirestoreRecyclerAdapter adapter;
+    MyAdsAdapter adapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPrefs sharedPrefs;
     VehiclePostManager vehiclePostManager;
@@ -70,14 +65,13 @@ public class AdsFragment extends Fragment {
         return Root;
     }
 
-    private  void setAdapter(){
+    private void setAdapter() {
 
-        if(vehiclePostManager.getCount()>1){
-            MyAdsListAdapter myAdsListAdapter = new MyAdsListAdapter(vehiclePostManager.listAll(),this,requireContext());
+        if (vehiclePostManager.getCount() > 1) {
+            MyAdsListAdapter myAdsListAdapter = new MyAdsListAdapter(vehiclePostManager.listAll(), this, requireContext());
             myAdList.setAdapter(myAdsListAdapter);
 
-        }
-        else{
+        } else {
             Query query = db.collection(VehiclePostCollection)
                     .whereEqualTo("sellerId", sharedPrefs.getSharedUID()).orderBy("dateTime");
             FirestoreRecyclerOptions<VehiclePost> options = new FirestoreRecyclerOptions.Builder<VehiclePost>()
@@ -106,7 +100,7 @@ public class AdsFragment extends Fragment {
 
     public void OnItemClickListener(VehiclePost vehicle) {
         Intent intent = new Intent(requireActivity(), UpdatePostActivity.class);
-        intent.putExtra("vehicle",vehicle);
+        intent.putExtra("vehicle", vehicle);
         startActivity(intent);
 
     }
@@ -120,6 +114,7 @@ public class AdsFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
     @Override
     public void onStop() {
         super.onStop();
@@ -129,6 +124,7 @@ public class AdsFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
     public void showEmptyIndicator() {
 
         try {
@@ -145,17 +141,16 @@ public class AdsFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
-            ((HomeActivity)context).setSelectedChip(2);
+            ((HomeActivity) context).setSelectedChip(2);
         } catch (Exception ignored) {
 
         }
     }
-
-
 
 
 }

@@ -1,7 +1,14 @@
 package com.s19.spotbuy.Fragments.Profile;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.IMAGE_REQUEST_CODE;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RATIO_X;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RATIO_Y;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RESULT_HEIGHT;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RESULT_WIDTH;
 import static com.s19.spotbuy.Others.Constants.CAMERA_ACTION_PICK_REQUEST_CODE;
 import static com.s19.spotbuy.Others.Constants.CAMERA_REQUEST;
 import static com.s19.spotbuy.Others.Constants.DEFAULT_POST_COUNT;
@@ -27,9 +34,11 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -56,6 +65,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.s19.spotbuy.Activity.HomeActivity;
+import com.s19.spotbuy.Activity.ImagePickerActivity;
+import com.s19.spotbuy.Activity.UpdatePostActivity;
 import com.s19.spotbuy.DataBase.ImageManager;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
@@ -67,13 +78,17 @@ import com.s19.spotbuy.Others.NetworkUtil;
 import com.s19.spotbuy.Others.OnImageUploadListener;
 import com.s19.spotbuy.Others.ReadBasicFireBaseData;
 import com.s19.spotbuy.Others.SaveImageByteToDatabase;
+import com.s19.spotbuy.Others.StateCityData;
+import com.s19.spotbuy.Others.Utils;
 import com.s19.spotbuy.R;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 
@@ -85,8 +100,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     ProgressBar imageProgressIndicator;
     Button updateProfile;
     EditText userName, userMobileNo, userAltMobile, userEmail, userAddress;
-    LinearLayout linearBG;
-    AutoCompleteTextView gender;
+    AutoCompleteTextView city,gender;
     Activity activity;
     LoadingDialog loadingDialog;
     SharedPrefs sharedPrefs;
@@ -95,9 +109,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     User user = new User();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    String currentPhotoPath = "";
-    String[] cameraPermission;
-    String[] storagePermission;
+
 
     String oldImage;
 
@@ -121,8 +133,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         loadingDialog = new LoadingDialog(activity);
         userManager = new UserManager(activity);
         imageManager = new ImageManager(activity);
-        cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
 
         initView();
@@ -144,7 +154,33 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         userAltMobile = Root.findViewById(R.id.userAltMobile);
         userEmail = Root.findViewById(R.id.userEmail);
         userAddress = Root.findViewById(R.id.userAddress);
-        linearBG = Root.findViewById(R.id.linearBG);
+        //Setting City list
+        city = Root.findViewById(R.id.city);
+        ArrayAdapter<String> cityAdapter;
+        cityAdapter = new ArrayAdapter<String>(requireActivity(),
+                android.R.layout.simple_list_item_1, new Utils(requireContext()).getAllCityList());
+        city.setAdapter(cityAdapter);
+        city.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                sharedPrefs.setSharedCity(city.getText().toString().trim());
+            }
+        });
+        city.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!new Utils(requireContext()).getAllCityList().contains(city.getText().toString().trim())) {
+                    city.setText("");
+                }
+                else {
+                    sharedPrefs.setSharedCity(city.getText().toString().trim());
+                }
+            }
+        });
+        city.setText(requireContext().getString(R.string.select_your_city), false);
+
+
+        //Setting Gender List
         gender = Root.findViewById(R.id.gender);
         ArrayAdapter<String> genderAdapter;
         genderAdapter = new ArrayAdapter<String>(requireActivity(),
@@ -162,11 +198,13 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View view) {
         if (view == updateProfile) {
+            updateProfile.requestFocus();
             loadingDialog.show();
             getEnteredData();
             try {
                 profileUpdate();
             } catch (Exception e) {
+                loadingDialog.dismiss();
                 Toast.makeText(activity, "Error :" + e, Toast.LENGTH_SHORT).show();
             }
         }
@@ -182,6 +220,10 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             isValid = false;
             userName.setError("Empty");
         }
+        else if(!isValidName(userName.getText().toString())){
+            isValid = false;
+            userName.setError("Invalid");
+        }
         if (userEmail.getText().toString().length() != 0 && !isValidEmail(userEmail.getText().toString().trim())) {
             isValid = false;
             userEmail.setError("Invalid");
@@ -191,6 +233,14 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             isValid = false;
             userAltMobile.setError("Invalid");
         }
+        if(city.getText().toString().trim().length()==0) {
+            isValid = false;
+            city.setError("Empty");
+        }
+        else if(!new Utils(requireContext()).getAllCityList().contains(city.getText().toString().trim())) {
+            isValid = false;
+            city.setError("Invalid");
+        }
 
 
         return isValid;
@@ -199,15 +249,19 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     public boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
+    public static boolean isValidName(String name) {
+        return name.matches("[a-zA-Z\\s]+");
+    }
 
     private void getEnteredData() {
 
         user.setId(sharedPrefs.getSharedUID());
-        user.setName(userName.getText().toString().trim());
+        user.setName(capitalizeName(userName.getText().toString().trim()));
         user.setMobile(sharedPrefs.getSharedMobile());
         user.setAlt_mobile(userAltMobile.getText().toString().trim());
         user.setEmail(userEmail.getText().toString().trim());
         user.setAddress(userAddress.getText().toString().trim());
+        user.setCity(city.getText().toString().trim());
 
 
         if (user.getDateTime() == null) {
@@ -221,6 +275,29 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         }
 
 
+    }
+
+    public static String capitalizeName(String input) {
+        // Split input by spaces to handle multiple parts
+        String[] parts = input.trim().split("\\s+");
+
+        StringBuilder result = new StringBuilder();
+
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                // Capitalize first letter of the part and append
+                result.append(Character.toUpperCase(part.charAt(0)));
+                if (part.length() > 1) {
+                    // Append the rest of the part in lowercase
+                    result.append(part.substring(1).toLowerCase());
+                }
+                // Append space if there were multiple parts
+                result.append(" ");
+            }
+        }
+
+        // Remove trailing space and return the result
+        return result.toString().trim();
     }
 
     private void profileUpdate() {
@@ -328,11 +405,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             if (user.getImage() != null || user.getImage() != "") {
                 sharedPrefs.setSharedImage(user.getImage());
 
-                Bitmap temp = imageManager.getImageByLink(user.getImage()).getImageBitmap();
-                if (temp != null) {
-                    userImage.setImageBitmap(temp);
+                ImageModel  temp = imageManager.getImageByLink(user.getImage());
+                if (temp != null && temp.getImageBitmap()!=null) {
+                    userImage.setImageBitmap(temp.getImageBitmap());
                 } else {
-                    new DownloadImage(activity, userImage, imageProgressIndicator).execute(user.getImage());
+                        new DownloadImage(activity, userImage, imageProgressIndicator).execute(user.getImage());
                 }
             }
             userName.setText(user.getName());
@@ -341,6 +418,12 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             userAddress.setText(user.getAddress());
             userMobileNo.setText(user.getMobile());
             gender.setText(user.getGender(), false);
+            if(user.getCity()!=null ) {
+                city.setText(user.getCity());
+            }
+            else if (sharedPrefs.getSharedCity().equals("location")) {
+                city.setText(sharedPrefs.getSharedCity());
+            }
 
             oldImage = user.getImage();
         } else {
@@ -461,14 +544,18 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
 
     private void deleteImageFromLocalStorage(Uri imageUri) {
-        File fdelete = new File(getFilePath(imageUri));
+        try {
+            File fdelete = new File(getFilePath(imageUri));
 
-        if (fdelete != null && fdelete.exists()) {
-            if (fdelete.delete()) {
-                System.out.println("file Deleted :");
-            } else {
-                System.out.println("file not Deleted :");
+            if (fdelete != null && fdelete.exists()) {
+                if (fdelete.delete()) {
+                    System.out.println("file Deleted :");
+                } else {
+                    System.out.println("file not Deleted :");
+                }
             }
+        } catch (Exception ignored) {
+
         }
     }
 
@@ -488,169 +575,38 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     }
 
     private void showImagePicDialog() {
-        String[] options = {"Camera", "Gallery"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        builder.setTitle("Pick Image From");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        openCamera();
-                    }
-                } else if (which == 1) {
-                    if (!checkStoragePermission()) {
-                        requestStoragePermission();
-                    } else {
-                        openImagesDocument();
-                    }
-                }
-            }
-        });
-        builder.create().show();
+        Intent imagePicker = new Intent(activity, ImagePickerActivity.class);
+        imagePicker.putExtra(RATIO_X, 1f);
+        imagePicker.putExtra(RATIO_Y, 1f);
+        imagePicker.putExtra(RESULT_WIDTH, 200);
+        imagePicker.putExtra(RESULT_HEIGHT, 200);
+        startActivityForResult(imagePicker, IMAGE_REQUEST_CODE);
     }
-
-    // checking storage permissions
-    private Boolean checkStoragePermission() {
-        boolean result = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-
-    // Requesting  gallery permission
-    private void requestStoragePermission() {
-        requestPermissions(storagePermission, STORAGE_REQUEST);
-    }
-
-    // checking camera permissions
-    private Boolean checkCameraPermission() {
-        boolean result = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
-        boolean result1 = ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result && result1;
-    }
-
-    // Requesting camera permission
-    private void requestCameraPermission() {
-        requestPermissions(cameraPermission, CAMERA_REQUEST);
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case CAMERA_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean camera_accepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeStorageaccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (camera_accepted && writeStorageaccepted) {
-                        openCamera();
-                    } else {
-                        Toast.makeText(this.requireActivity(), "Please Enable Camera and Storage Permissions", Toast.LENGTH_LONG).show();
-                    }
-                }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                setProfileImageFromUri(uri);
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(activity, "Operation Failed !!", Toast.LENGTH_SHORT).show();
             }
-            break;
-            case STORAGE_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean writeStorageaccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if (writeStorageaccepted) {
-                        openImagesDocument();
-                    } else {
-                        Toast.makeText(this.requireActivity(), "Please Enable Storage Permissions", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            break;
         }
     }
-
-    private void openCamera() {
-        Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = getImageFile(); // 1
-        Uri uri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) // 2
-            uri = FileProvider.getUriForFile(activity, "com.s19mobility.spotbuy.provider", file);
-        else
-            uri = Uri.fromFile(file); // 3
-        pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri); // 4
-        startActivityForResult(pictureIntent, CAMERA_ACTION_PICK_REQUEST_CODE);
-    }
-
-    private File getImageFile() {
-        String imageFileName = "JPEG_" + System.currentTimeMillis() + "_";
-        File storageDir = new File(
-                Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DCIM
-                ), "Camera"
-        );
-        File file = null;
-        try {
-            file = File.createTempFile(
-                    imageFileName, ".jpg", storageDir
-
-            );
-            currentPhotoPath = "file:" + file.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return file;
-    }
-
-    private void openCropActivity(Uri sourceUri, Uri destinationUri) {
-        UCrop.Options options = new UCrop.Options();
-        UCrop.of(sourceUri, destinationUri)
-                .withMaxResultSize(200, 200)
-                .withAspectRatio(1f, 1f)
-                .withOptions(options)
-                .start(activity, this, UCrop.REQUEST_CROP);
-    }
-
-    private void openImagesDocument() {
-        Intent pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        pictureIntent.setType("image/*");  // 1
-        pictureIntent.addCategory(Intent.CATEGORY_OPENABLE);  // 2
-        String[] mimeTypes = new String[]{"image/jpeg", "image/png"};  // 3
-        pictureIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-        startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"), PICK_IMAGE_GALLERY_REQUEST_CODE);  // 4
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-        if (requestCode == CAMERA_ACTION_PICK_REQUEST_CODE && resultCode == RESULT_OK) {
-            Uri uri = Uri.parse(currentPhotoPath);
-            openCropActivity(uri, uri);
-            Toast.makeText(activity, "Camera Reult", Toast.LENGTH_SHORT).show();
-            Log.d("TAG", "onActivityResult: CAMERA_REQUEST");
-
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
-            assert data != null;
-            Log.d("TAG", "onActivityResult: OUTPUT" + UCrop.getOutputCropAspectRatio(data));
-            Uri uri = UCrop.getOutput(data);
-            setProfileImageFromUri(uri);
-
-        } else if (requestCode == PICK_IMAGE_GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            Uri sourceUri = data.getData(); // 1
-            File file = getImageFile(); // 2
-            Uri destinationUri = Uri.fromFile(file);  // 3
-            openCropActivity(sourceUri, destinationUri);  // 4
-            Toast.makeText(activity, "Galary Reult", Toast.LENGTH_SHORT).show();
-            Log.d("TAG", "onActivityResult: GALLERY_REQUEST");
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            Toast.makeText(activity, "Error" + UCrop.getError(data), Toast.LENGTH_SHORT).show();
-            Log.d("TAG", "onActivityResult: " + UCrop.getError(data));
-        } else Toast.makeText(activity, "Error!!", Toast.LENGTH_SHORT).show();
-    }
-
 
     private void deleteImageFromFirebaseAndLocalDB() {
         if (!Objects.equals(oldImage, user.getImage())) {
             imageManager.deleteByLink(oldImage);
-            FirebaseStorage.getInstance().getReferenceFromUrl(oldImage).delete();
+            try {
+                FirebaseStorage.getInstance().getReferenceFromUrl(oldImage).delete();
+            } catch (Exception ignored) {
+
+            }
 
         }
     }
+
 
 }

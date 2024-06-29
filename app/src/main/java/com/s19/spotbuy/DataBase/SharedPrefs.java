@@ -89,7 +89,7 @@ public class SharedPrefs {
     //City Preferences
     public String getSharedCity() {
         SharedPreferences sp = context.getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
-        return sp.getString("city", "");
+        return sp.getString("city", "location");
     }
 
     public void setSharedCity(String city) {

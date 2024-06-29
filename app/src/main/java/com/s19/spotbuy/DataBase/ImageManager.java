@@ -84,7 +84,7 @@ public class ImageManager {
     }
 
     public void deleteByLink(String link) {
-        dbw.delete(TABLE_NAME, LINK + "=" + link, null);
+        dbw.delete(TABLE_NAME, LINK + " = " + link, null);
     }
 
     @SuppressLint("Range")

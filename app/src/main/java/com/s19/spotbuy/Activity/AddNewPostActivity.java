@@ -1,10 +1,10 @@
 package com.s19.spotbuy.Activity;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static com.s19.spotbuy.Others.Constants.CAMERA_ACTION_PICK_REQUEST_CODE;
-import static com.s19.spotbuy.Others.Constants.CAMERA_REQUEST;
-import static com.s19.spotbuy.Others.Constants.PICK_IMAGE_GALLERY_REQUEST_CODE;
-import static com.s19.spotbuy.Others.Constants.STORAGE_REQUEST;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.IMAGE_REQUEST_CODE;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RATIO_X;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RATIO_Y;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RESULT_HEIGHT;
+import static com.s19.spotbuy.Activity.ImagePickerActivity.RESULT_WIDTH;
 import static com.s19.spotbuy.Others.Constants.UserCollection;
 import static com.s19.spotbuy.Others.Constants.VehiclePostCollection;
 import static com.s19.spotbuy.Others.Constants.getAllTransmissionModes;
@@ -17,14 +17,10 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,12 +31,18 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -54,7 +56,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.s19.spotbuy.Adapters.VehicleImageListAdapter;
-import com.s19.spotbuy.BuildConfig;
 import com.s19.spotbuy.DataBase.SharedPrefs;
 import com.s19.spotbuy.DataBase.UserManager;
 import com.s19.spotbuy.DataBase.VehicleDetails.FuelTypeManager;
@@ -74,18 +75,12 @@ import com.s19.spotbuy.Others.STATUS;
 import com.s19.spotbuy.Others.SaveImageByteToDatabase;
 import com.s19.spotbuy.Others.Utils;
 import com.s19.spotbuy.R;
-import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 public class AddNewPostActivity extends MainActivity implements View.OnClickListener {
     ImageView back;
@@ -136,24 +131,26 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
     Button addImage;
     ImageView TestImage;
     VehicleImageListAdapter ImageAdapter;
-    String currentPhotoPath;
-    String[] cameraPermission;
-    String[] storagePermission;
+
+    //Ads
+    private RewardedAd rewardedAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_post);
-        cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+
+        //Ads
+        MobileAds.initialize(this);
+        loadRewardedVideoAd();
 
         currentVehicle = new VehiclePost();
         sharedPrefs = new SharedPrefs(this);
         categoryManager = new VehicleCategoryManager(this);
         categoryList = categoryManager.getStringList();
-        if(!categoryList.isEmpty())
+        if (!categoryList.isEmpty())
             categoryList.remove(0);
-        Log.i("TAG", "onCreate: "+categoryList);
+
 
         brandManager = new VehicleBrandManager(this);
         brandModelManager = new VehicleBrandModelManager(this);
@@ -199,12 +196,11 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                 android.R.layout.simple_list_item_1, categoryList);
         vehicleCategoryList.setAdapter(adapterCategory);
         vehicleCategoryList.setOnItemClickListener((adapterView, view, i, l) -> {
-            String CategoryId = categoryManager.listAll().get(i+1).getId();
+            String CategoryId = categoryManager.listAll().get(i + 1).getId();
             currentVehicle.setCategoryId(CategoryId);
             unsetBrandAdapter();
 
             List<String> brandList = brandManager.getBrandByCategoryId(CategoryId);
-            Log.d("TAG", "Brand List: "+brandList);
             setBrandAdapter(brandList);
 
         });
@@ -297,7 +293,7 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
 
     }
 
-    private void unsetBrandAdapter(){
+    private void unsetBrandAdapter() {
         vehicleBrandList.setText("");
         vehicleBrandList.setAdapter(null);
         unsetBrandModelAdapter();
@@ -315,11 +311,13 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
             currentVehicle.setTitle(currentVehicle.getTitle() + " " + model.getName());
         });
     }
-    private void unsetBrandModelAdapter(){
+
+    private void unsetBrandModelAdapter() {
         vehicleBrandModelList.setText("");
         vehicleBrandModelList.setAdapter(null);
 
     }
+
     private void setCityAdapter(String state) {
         ArrayAdapter<String> adapterCity;
         adapterCity = new ArrayAdapter<>(this,
@@ -359,6 +357,7 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
                                         .document(sharedPrefs.getSharedUID())
                                         .update("availablePost", FieldValue.increment(-1), "totalPost", FieldValue.increment(1));
 
+                                showRewardedVideoAd();
                                 showSuccessDialog();
 
                             }
@@ -647,179 +646,100 @@ public class AddNewPostActivity extends MainActivity implements View.OnClickList
 
     }
 
+    //Setting Croped Image
 
     private void showImagePicDialog() {
-        String[] options = {"Camera", "Gallery"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pick Image From");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
+        Intent imagePicker = new Intent(AddNewPostActivity.this, ImagePickerActivity.class);
+        imagePicker.putExtra(RATIO_X, 4f);
+        imagePicker.putExtra(RATIO_Y, 3f);
+        imagePicker.putExtra(RESULT_WIDTH, 1050);
+        imagePicker.putExtra(RESULT_HEIGHT, 850);
+        startActivityForResult(imagePicker, IMAGE_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                setVehicleImageFromUri(uri);
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "Operation Failed !!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    //Ads
+    void loadRewardedVideoAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, this.getString(R.string.rewarded_1), adRequest, new RewardedAdLoadCallback() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        openCamera();
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+
+                rewardedAd = null;
+            }
+
+            @Override
+            public void onAdLoaded(@NonNull RewardedAd ad) {
+                super.onAdLoaded(ad);
+                rewardedAd = ad;
+                rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdClicked() {
+                        // Called when a click is recorded for an ad.
 
                     }
-                } else if (which == 1) {
-                    if (!checkStoragePermission()) {
-                        requestStoragePermission();
-                    } else {
-                        openImagesDocument();
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        // Called when ad is dismissed.
+                        // Set the ad reference to null so you don't show the ad a second time.
+                        rewardedAd = null;
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        // Called when ad fails to show.
+                        rewardedAd = null;
+                    }
+
+                    @Override
+                    public void onAdImpression() {
+                        // Called when an impression is recorded for an ad.
 
                     }
-                }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        // Called when ad is shown.
+                        loadRewardedVideoAd();
+                    }
+                });
+
             }
         });
-        builder.create().show();
+
+
     }
 
-    // checking storage permissions
-    private Boolean checkStoragePermission() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
+    void showRewardedVideoAd() {
+        if (rewardedAd != null) {
 
-    // Requesting  gallery permission
-    private void requestStoragePermission() {
-        requestPermissions(storagePermission, STORAGE_REQUEST);
-    }
-
-    // checking camera permissions
-    private Boolean checkCameraPermission() {
-        boolean result = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
-        boolean result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result && result1;
-    }
-
-    // Requesting camera permission
-    private void requestCameraPermission() {
-        requestPermissions(cameraPermission, CAMERA_REQUEST);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean camera_accepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeStorageaccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (camera_accepted && writeStorageaccepted) {
-                        openCamera();
-                    } else {
-                        Toast.makeText(this, "Please Enable Camera and Storage Permissions", Toast.LENGTH_LONG).show();
-                    }
+            rewardedAd.show(this, new OnUserEarnedRewardListener() {
+                @Override
+                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                    // Handle the reward.
+                    // Log.d(TAG, "The user earned the reward.");
+                    int rewardAmount = rewardItem.getAmount();
+                    String rewardType = rewardItem.getType();
                 }
-            }
-            break;
-            case STORAGE_REQUEST: {
-                if (grantResults.length > 0) {
-                    boolean writeStorageaccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if (writeStorageaccepted) {
-                        openImagesDocument();
-                    } else {
-                        Toast.makeText(this, "Please Enable Storage Permissions", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    private void openCamera() {
-        Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = getImageFile(); // 1
-        Log.d("TAG", "openCamera: currentPhotoPath" + currentPhotoPath);
-        Uri uri;
-        if (SDK_INT >= Build.VERSION_CODES.N) // 2
-            uri = FileProvider.getUriForFile(Objects.requireNonNull(getApplicationContext()),
-                    BuildConfig.APPLICATION_ID + ".provider", file);
-
-        else
-            uri = Uri.fromFile(file); // 3
-        pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri); // 4
-        startActivityForResult(pictureIntent, CAMERA_ACTION_PICK_REQUEST_CODE);
-    }
-
-    private File getImageFile() {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "PROFILE_PICTURE_" + timeStamp;
-        File image, storageDir;
-
-        if (SDK_INT < Build.VERSION_CODES.Q) {
-            storageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SpotBuy");
-            if (!storageDir.exists()) {
-                storageDir.mkdirs();
-            }
-            image = new File(storageDir, imageFileName + ".jpg");
-            try {
-                image.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            currentPhotoPath = image.getAbsolutePath();
+            });
         } else {
-            storageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES + File.separator + "SpotBuy");
-            try {
-                image = File.createTempFile(imageFileName, ".jpg", storageDir);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            currentPhotoPath = image.getAbsolutePath();
+            // Log.d(TAG, "The rewarded ad wasn't ready yet.");
         }
-
-        return image;
-
-
-    }
-
-    private void openCropActivity(Uri sourceUri, Uri destinationUri) {
-        UCrop.of(sourceUri, destinationUri)
-                .withMaxResultSize(1050, 850)
-                .withAspectRatio(4f, 3f)
-                .start(AddNewPostActivity.this);
-    }
-
-    private void openImagesDocument() {
-        Intent pictureIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        pictureIntent.setType("image/*");  // 1
-        pictureIntent.addCategory(Intent.CATEGORY_OPENABLE);  // 2
-        String[] mimeTypes = new String[]{"image/jpeg", "image/png"};  // 3
-        pictureIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-        startActivityForResult(Intent.createChooser(pictureIntent, "Select Picture"), PICK_IMAGE_GALLERY_REQUEST_CODE);  // 4
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAMERA_ACTION_PICK_REQUEST_CODE && resultCode == RESULT_OK) {
-            Uri uri = Uri.parse(currentPhotoPath);
-            openCropActivity(uri, uri);
-
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
-            assert data != null;
-            Uri uri = UCrop.getOutput(data);
-            setVehicleImageFromUri(uri);
-
-        }
-        else if (requestCode == PICK_IMAGE_GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            Uri sourceUri = data.getData(); // 1
-            File file = getImageFile(); // 2
-            if (file != null) {
-                Log.d("TAG", "File:d " + file.getPath());
-                Log.d("TAG", "File:s " + sourceUri);
-            }
-            Uri destinationUri = Uri.fromFile(file);  // 3
-            openCropActivity(sourceUri, destinationUri);  // 4
-
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            Toast.makeText(this, "Error : " + UCrop.getError(data), Toast.LENGTH_SHORT).show();
-            Log.d("TAG", "onActivityResult: " + UCrop.getError(data));
-        } else Toast.makeText(this, "Error!!", Toast.LENGTH_SHORT).show();
     }
 
 }

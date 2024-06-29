@@ -29,8 +29,11 @@ public class User implements Serializable {
     String id;
     boolean active;
     String address;
+    String city;
+    String state;
+    String country ="India";
     String alt_mobile;
-    int availablePost;
+
     Date dateTime;
     String email;
     String gender;
@@ -39,6 +42,7 @@ public class User implements Serializable {
     String name;
     String password;
     String role;
+    int availablePost;
     int totalPost;
     List<String> followers = new ArrayList<>();
     List<String> following = new ArrayList<>();
@@ -47,6 +51,8 @@ public class User implements Serializable {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Exclude
     private byte[] imageBmp;
+
+
 
     public User() {
     }
@@ -187,6 +193,30 @@ public class User implements Serializable {
         return following.size();
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     ///IMPORTANT FUNCTIONS
     public String jsonFollowersList() {
         Gson gson = new Gson();
@@ -221,6 +251,8 @@ public class User implements Serializable {
 
     @Exclude
     public String getDateTimeString() {
+        if(dateTime==null)
+            return null;
         return dateFormat.format(dateTime);
     }
     @Exclude
@@ -236,12 +268,18 @@ public class User implements Serializable {
     public Map<String, Object> toUpdateMap() {
         Map<String, Object> temp = new HashMap<String, Object>() {
         };
+
         temp.put("name", name);
         temp.put("alt_mobile", alt_mobile);
         temp.put("email", email);
         temp.put("address", address);
         temp.put("gender", gender);
         temp.put("image", image);
+
+        temp.put("city", city);
+        temp.put("state", state);
+        temp.put("country", country);
+
 
         return temp;
     }

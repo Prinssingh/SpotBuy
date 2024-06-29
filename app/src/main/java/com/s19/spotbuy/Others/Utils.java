@@ -143,6 +143,33 @@ public class Utils {
         return cities;
     }
 
+    public List<String> getAllCityList() {
+        List<String> cities = new ArrayList<String>() {
+        };
+
+        for (String state: getStateList()) {
+            JSONArray tem = null;
+            try {
+                tem = (JSONArray) json.get(state);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < tem.length(); i++) {
+                try {
+                    cities.add(tem.getString(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        Collections.sort(cities);
+        return cities;
+    }
+
+
     public List<String> getCountrylist() {
         List<String> country = new ArrayList<String>() {
         };

@@ -36,6 +36,7 @@ import com.s19.spotbuy.Models.VehicleBrand;
 import com.s19.spotbuy.Models.VehicleBrandModel;
 import com.s19.spotbuy.Models.VehicleCategory;
 import com.s19.spotbuy.Models.VehiclePost;
+import com.s19.spotbuy.Widgets.TestToast;
 
 import java.util.Date;
 
@@ -72,12 +73,12 @@ public class ReadBasicFireBaseData {
                 if (sharedPrefs.getLastUpdateDate()==null ||sharedPrefs.getLastUpdateDate().getTime()<date.getTime()){
                     sharedPrefs.setLastUpdateDate(date);
                     Toast.makeText(context, "Updating...", Toast.LENGTH_SHORT).show();
-                    Log.e("Here","Update Available");
+                    //Log.e("Here","Update Available");
                     doOperations();
                 }
                 else {
-                    //Toast.makeText(context, "No Updates!", Toast.LENGTH_SHORT).show();
-                    Log.e("Here","Update NOT Available");
+                   new TestToast(context ,"No Update Avl.");
+                    //Log.e("Here","Update NOT Available");
                 }
 
                 //Log.e("Here","Date Firebase"+date);

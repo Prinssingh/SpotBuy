@@ -32,28 +32,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.s19.spotbuy.Adapters.FireBase.ChatRecyclerAdapter;
 import com.s19.spotbuy.DataBase.ImageManager;
+import com.s19.spotbuy.Dialogs.LoadingDialog;
 import com.s19.spotbuy.Models.ChatMessageModel;
 import com.s19.spotbuy.Models.ChatRoomModel;
 import com.s19.spotbuy.Models.ImageModel;
 import com.s19.spotbuy.Models.User;
 import com.s19.spotbuy.Others.DownloadImage;
-import com.s19.spotbuy.Dialogs.LoadingDialog;
 import com.s19.spotbuy.Others.Utils;
-import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
 import com.s19.spotbuy.R;
+import com.s19.spotbuy.Widgets.WrapContentLinearLayoutManager;
 
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.Arrays;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
     User otherUser;
@@ -91,13 +81,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             otherUser = (User) documentSnapshot.toObject(User.class);
                             if (otherUser == null)
                                 return;
-                            if (otherUser.getImage() != null)
-                            {
-                                ImageModel imageModel =new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
-                                if(imageModel!=null || imageModel.getImageBitmap()!=null)
+                            if (otherUser.getImage() != null) {
+                                ImageModel imageModel = new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
+                                if (imageModel != null || imageModel.getImageBitmap() != null)
                                     imageView.setImageBitmap(imageModel.getImageBitmap());
                                 else
-                                    new DownloadImage(ChatActivity.this,imageView, imageProgressIndicator).execute(otherUser.getImage());
+                                    new DownloadImage(ChatActivity.this, imageView, imageProgressIndicator).execute(otherUser.getImage());
 
 
                             }
@@ -131,13 +120,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         imageView = findViewById(R.id.userImage);
         imageProgressIndicator = findViewById(R.id.imageProgressIndicator);
 
-        if (otherUser.getImage() != null)
-        {
-            ImageModel imageModel =new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
-            if(imageModel!=null || imageModel.getImageBitmap()!=null)
+        if (otherUser.getImage() != null) {
+            ImageModel imageModel = new ImageManager(ChatActivity.this).getImageByLink(otherUser.getImage());
+            if (imageModel != null || imageModel.getImageBitmap() != null)
                 imageView.setImageBitmap(imageModel.getImageBitmap());
             else
-                new DownloadImage(ChatActivity.this,imageView, imageProgressIndicator).execute(otherUser.getImage());
+                new DownloadImage(ChatActivity.this, imageView, imageProgressIndicator).execute(otherUser.getImage());
 
         }
 
@@ -147,7 +135,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         sendMessageBtn.setOnClickListener((v -> {
             String message = messageInput.getText().toString().trim();
-            if (message.isEmpty() || message.length() ==0 || message ==null)
+            if (message.isEmpty() || message.length() == 0 || message == null)
                 return;
             sendMessageToUser(message);
         }));
@@ -178,10 +166,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         if (view == call)
             if (otherUser != null && otherUser.getMobile() != "") {
                 makeCall();
-            }
-        else
+            } else
                 Toast.makeText(this, "Sellers information is not available right now", Toast.LENGTH_LONG).show();
-
 
 
     }
@@ -194,6 +180,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
     // checking storage permissions
     private Boolean checkCallPermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == (PackageManager.PERMISSION_GRANTED);
@@ -229,7 +216,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
     void setupChatRecyclerView() {
         Query query = Utils.getChatroomMessageReference(chatroomId)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
@@ -253,7 +239,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void sendMessageToUser(String message) {
-        if(message.isEmpty())
+        if (message.isEmpty())
             return;
 
         chatroomModel.setLastMessageTimestamp(Timestamp.now());
@@ -289,59 +275,5 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    void sendNotification(String message) {
-
-        Utils.currentUserDetails().get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                User currentUser = task.getResult().toObject(User.class);
-                try {
-                    JSONObject jsonObject = new JSONObject();
-
-                    JSONObject notificationObj = new JSONObject();
-                    notificationObj.put("title", currentUser.getName());
-                    notificationObj.put("body", message);
-
-                    JSONObject dataObj = new JSONObject();
-                    dataObj.put("userId", currentUser.getId());
-
-                    jsonObject.put("notification", notificationObj);
-                    jsonObject.put("data", dataObj);
-                    //  jsonObject.put("to", otherUser.getFcmToken());
-
-                    callApi(jsonObject);
-
-
-                } catch (Exception e) {
-
-                }
-
-            }
-        });
-
-    }
-
-    void callApi(JSONObject jsonObject) {
-        MediaType JSON = MediaType.get("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .header("Authorization", "Bearer YOUR_API_KEY")
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
-            }
-        });
-
-    }
 
 }

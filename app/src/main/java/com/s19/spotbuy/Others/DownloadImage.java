@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.util.ByteArrayBuffer;
 import com.s19.spotbuy.DataBase.ImageManager;
@@ -38,6 +39,9 @@ public class DownloadImage extends AsyncTask<String, Void, byte[]> {
         url = urls[0];
 
         try {
+            if(url==null || url ==""){
+                Toast.makeText(context, "empty Link", Toast.LENGTH_SHORT).show();
+            }
             URL imageUrl = new URL(url);
             URLConnection ucon = imageUrl.openConnection();
 
@@ -59,8 +63,10 @@ public class DownloadImage extends AsyncTask<String, Void, byte[]> {
 
     protected void onPostExecute(byte[] imageBytes) {
 
-        if (imageBytes == null)
+        if (imageBytes == null) {
+            loadingIndicator.setVisibility(View.GONE);
             return;
+        }
 
         ImageModel imageModel = new ImageModel();
         imageModel.setImageData(imageBytes);
