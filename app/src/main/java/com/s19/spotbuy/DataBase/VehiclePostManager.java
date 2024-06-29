@@ -171,12 +171,12 @@ public class VehiclePostManager {
         contentValues.put(SELLER_ID, vehiclePost.getSellerId());
         contentValues.put(BUYER_ID, vehiclePost.getBuyerId());
 
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + vehiclePost.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + vehiclePost.getId()+"'", null);
 
     }
 
     public void delete(VehiclePost vehiclePost) {
-        dbw.delete(TABLE_NAME, ID + "=" + vehiclePost.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "= '" + vehiclePost.getId()+"'", null);
 
     }
 

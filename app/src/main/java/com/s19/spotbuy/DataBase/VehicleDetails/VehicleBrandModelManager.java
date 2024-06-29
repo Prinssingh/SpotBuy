@@ -79,7 +79,7 @@ public class VehicleBrandModelManager {
         contentValues.put(CATEGORY_ID, brandModel.getCategoryId());
         contentValues.put(BRAND_ID, brandModel.getBrandId());
         dbw.insert(TABLE_NAME, null, contentValues);
-        Log.d("TAG", "insert: brandModel" + brandModel.getName());
+
 
     }
 
@@ -91,12 +91,12 @@ public class VehicleBrandModelManager {
         contentValues.put(ACTIVE, brandModel.isActive());
         contentValues.put(CATEGORY_ID, brandModel.getCategoryId());
         contentValues.put(BRAND_ID, brandModel.getBrandId());
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + brandModel.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + brandModel.getId()+"'", null);
 
     }
 
     public void delete(VehicleBrandModel brandModel) {
-        dbw.delete(TABLE_NAME, ID + "=" + brandModel.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "='" + brandModel.getId()+"'", null);
 
     }
 

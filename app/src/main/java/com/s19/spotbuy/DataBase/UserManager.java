@@ -166,11 +166,11 @@ public class UserManager {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FOLLOWERS, user.jsonFollowersList());
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + user.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + user.getId()+"'", null);
 
     }
     public void delete(User user) {
-        dbw.delete(TABLE_NAME, ID + "=" + user.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "='" + user.getId()+"'", null);
 
     }
 

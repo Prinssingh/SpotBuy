@@ -82,12 +82,12 @@ public class FuelTypeManager {
         contentValues.put(NAME, fuelType.getName());
         contentValues.put(ACTIVE, fuelType.isActive());
 
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + fuelType.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + fuelType.getId()+"'", null);
 
     }
 
     public void delete(FuelType fuelType) {
-        dbw.delete(TABLE_NAME, ID + "=" + fuelType.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "= '" + fuelType.getId()+"'", null);
 
     }
 

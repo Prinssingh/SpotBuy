@@ -75,16 +75,16 @@ public class ImageManager {
         contentValues.put(LINK, image.getLink());
         contentValues.put(BLOB_DATA, image.getImageData());
 
-        dbw.update(TABLE_NAME, contentValues, LINK + " = " + image.getLink(), null);
+        dbw.update(TABLE_NAME, contentValues, LINK + " = '" + image.getLink()+"'", null);
 
     }
 
     public void delete(ImageModel image) {
-        dbw.delete(TABLE_NAME, LINK + "=" + image.getLink(), null);
+        dbw.delete(TABLE_NAME, LINK + " = '" + image.getLink()+"'", null);
     }
 
     public void deleteByLink(String link) {
-        dbw.delete(TABLE_NAME, LINK + " = " + link, null);
+        dbw.delete(TABLE_NAME, LINK + " = '" + link + "'", null);
     }
 
     @SuppressLint("Range")

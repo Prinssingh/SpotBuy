@@ -88,12 +88,12 @@ public class VehicleCategoryManager {
         contentValues.put(ACTIVE, category.isActive());
         contentValues.put(IMAGE, category.getImage());
 
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + category.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + category.getId()+"'", null);
 
     }
 
     public void delete(VehicleCategory category) {
-        dbw.delete(TABLE_NAME, ID + "=" + category.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "='" + category.getId()+"'", null);
 
     }
 

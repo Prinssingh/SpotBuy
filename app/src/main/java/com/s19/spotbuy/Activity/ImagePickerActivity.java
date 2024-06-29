@@ -3,6 +3,7 @@ package com.s19.spotbuy.Activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -82,7 +83,12 @@ public class ImagePickerActivity extends AppCompatActivity {
                 }
             }
         });
-        builder.setCancelable(false);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+            }
+        });
         builder.create().show();
     }
 
@@ -248,5 +254,9 @@ public class ImagePickerActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
 
+        super.onBackPressed();
+    }
 }

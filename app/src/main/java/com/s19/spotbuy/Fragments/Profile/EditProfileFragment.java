@@ -81,6 +81,7 @@ import com.s19.spotbuy.Others.SaveImageByteToDatabase;
 import com.s19.spotbuy.Others.StateCityData;
 import com.s19.spotbuy.Others.Utils;
 import com.s19.spotbuy.R;
+import com.s19.spotbuy.Widgets.TestToast;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
@@ -469,12 +470,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     }
 
     private void setProfileImageFromUri(Uri uri) {
+        imageProgressIndicator.setVisibility(View.VISIBLE);
         Bitmap selectedImageBitmap;
         try {
             selectedImageBitmap
-                    = MediaStore.Images.Media.getBitmap(
-                    requireActivity().getContentResolver(),
-                    uri);
+                    = MediaStore.Images.Media.getBitmap(activity.getContentResolver(),uri);
             if (selectedImageBitmap != null)
                 uploadFireBaseImage(selectedImageBitmap, new OnImageUploadListener() {
                     @Override
@@ -506,8 +506,12 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                     }
                 });
 
-        } catch (IOException e) {
+            else new TestToast(activity,"Bitmap Empty");
+
+        }
+        catch (IOException e) {
             e.printStackTrace();
+            new TestToast(activity,"IO Exception");
         }
     }
 

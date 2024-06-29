@@ -88,12 +88,12 @@ public class VehicleBrandManager {
         contentValues.put(ACTIVE, brand.isActive());
         contentValues.put(CATEGORY_ID, brand.getCategoryId());
 
-        dbw.update(TABLE_NAME, contentValues, ID + " = " + brand.getId(), null);
+        dbw.update(TABLE_NAME, contentValues, ID + " = '" + brand.getId()+"'", null);
 
     }
 
     public void delete(VehicleBrand brand) {
-        dbw.delete(TABLE_NAME, ID + "=" + brand.getId(), null);
+        dbw.delete(TABLE_NAME, ID + "='" + brand.getId()+"'", null);
 
     }
 
